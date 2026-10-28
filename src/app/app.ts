@@ -1,7 +1,9 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   ViewChild,
   computed,
   inject,
@@ -9,6 +11,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import {
   ABOUT,
   capabilities,
@@ -21,14 +25,18 @@ import {
 } from './content';
 import { ContentService } from './services/content.service';
 import { DonateComponent } from './donate/donate.component';
+import { environment } from '../environments/environment';
+import { CountUp } from './motion';
+import { BOOKING_URL, LOCAL, PROOFS, WHATSAPP, WHATSAPP_TEXT } from './reach';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, RouterLink, DonateComponent],
+  imports: [FormsModule, RouterLink, DonateComponent, CountUp],
   templateUrl: './app.html',
 })
-export class App {
+export class App implements AfterViewInit, OnDestroy {
   private readonly content = inject(ContentService);
+  private readonly http = inject(HttpClient);
 
   readonly site = this.content.site();
   readonly services = this.content.services();
@@ -49,23 +57,77 @@ export class App {
   readonly basedIn = this.about.facts.find((f) => f.label === 'Based in')?.value ?? '';
   readonly year = new Date().getFullYear();
 
+  readonly local = LOCAL;
+  readonly proofs = PROOFS;
+  readonly booking = BOOKING_URL;
+  readonly waLink = WHATSAPP
+    ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(WHATSAPP_TEXT)}`
+    : '';
+  /** true when a backend is configured; otherwise pledges and enquiries go out by email */
+  readonly live = !!environment.apiBase;
+
+  // ---- Header, scroll progress, scrollspy, mobile menu ----
   readonly scrolled = signal(false);
+  readonly progress = signal(0);
+  readonly active = signal('top');
+  readonly menuOpen = signal(false);
   private ticking = false;
+  private spy?: IntersectionObserver;
+
   @HostListener('window:scroll')
   onScroll() {
     if (this.ticking) return;
     this.ticking = true;
     requestAnimationFrame(() => {
+      const d = document.documentElement;
+      const max = d.scrollHeight - d.clientHeight;
       this.scrolled.set(window.scrollY > 8);
+      this.progress.set(max > 0 ? Math.min(100, (d.scrollTop / max) * 100) : 0);
       this.ticking = false;
     });
   }
 
-  readonly quoteIdx = signal(0);
-  setQuote(i: number) {
-    this.quoteIdx.set(i);
+  @HostListener('document:keydown.escape')
+  closeMenu() {
+    this.menuOpen.set(false);
   }
 
+  ngAfterViewInit() {
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.spy = new IntersectionObserver(
+        (es) => es.forEach((e) => e.isIntersecting && this.active.set(e.target.id)),
+        { rootMargin: '-40% 0px -55% 0px' },
+      );
+      document.querySelectorAll('main section[id]').forEach((s) => this.spy!.observe(s));
+    }
+  }
+
+  ngOnDestroy() {
+    this.spy?.disconnect();
+  }
+
+  // ---- Testimonials ----
+  // ---- Hero figure: forecast error shrinks roughly with sqrt(n) ----
+  readonly n = signal(24);
+  readonly moe = computed(() => (1.96 * 20) / Math.sqrt(this.n()));
+  readonly bandPath = computed(() => {
+    const k = this.moe() * 1.1;
+    const xs = [30, 90, 150, 210, 270, 330, 390, 450];
+    const y = (x: number) => 210 - 0.29 * (x - 30);
+    const h = (x: number) => k * (1 + Math.max(0, x - 270) / 120);
+    const up = xs.map((x) => `${x},${(y(x) - h(x)).toFixed(1)}`);
+    const lo = [...xs].reverse().map((x) => `${x},${(y(x) + h(x)).toFixed(1)}`);
+    return 'M' + up.join(' L') + ' L' + lo.join(' L') + ' Z';
+  });
+  readonly dots = [-6, 5, -9, 3, 8, -4, 6, -7, 2].map((d, i) => ({
+    x: 30 + i * 30,
+    y: 210 - 0.29 * i * 30 + d,
+  }));
+  setN(e: Event) {
+    this.n.set(+(e.target as HTMLInputElement).value);
+  }
+
+  // ---- Back a project ----
   readonly projectId = signal(DEFAULT_FUNDING_ID);
   readonly amount = signal(100);
   readonly pledgeName = signal('');
@@ -73,6 +135,7 @@ export class App {
   readonly pledgeBusy = signal(false);
   readonly pledgeCode = signal('');
   readonly pledgeStatus = signal('');
+  readonly pledgeViaEmail = signal(false);
   @ViewChild('pledgeSuccess') pledgeSuccess?: ElementRef<HTMLElement>;
 
   readonly tier = computed(
@@ -90,9 +153,11 @@ export class App {
   pct(f: { goal: number; raised: number }) {
     return f.goal ? Math.min(100, Math.round((f.raised / f.goal) * 100)) : 0;
   }
+
   isFunded(f: { goal: number; raised: number }) {
     return f.raised >= f.goal;
   }
+
   setAmount(e: Event) {
     this.amount.set(Math.max(1, Math.floor(+(e.target as HTMLInputElement).value || 0)));
   }
@@ -109,35 +174,52 @@ export class App {
       this.pledgeStatus.set('Please enter a valid amount, name and email.');
       return;
     }
+
     const t = this.tier();
-    const code = 'DK-' + Math.random().toString(36).slice(2, 8).toUpperCase();
     this.pledgeBusy.set(true);
     this.pledgeStatus.set('');
-    this.pledgeCode.set(code);
+
     try {
-      await this.send(`Project pledge: ${this.project().title}`, {
-        name,
-        email,
-        project: this.project().title,
-        amount_usd: String(amount),
-        discount: t ? `${t.off}%` : 'none',
-        code,
-      });
-      try {
-        localStorage.setItem('dk-pledge', code);
-      } catch {
-        /* ignore */
+      if (environment.apiBase) {
+        const res = await firstValueFrom(
+          this.http.post<{ code: string }>(
+            `${environment.apiBase}/pledges`,
+            { project_id: this.projectId(), name, email, amount, discount_pct: t?.off ?? 0 },
+            { withCredentials: true },
+          ),
+        );
+        this.pledgeCode.set(res.code);
+        try {
+          localStorage.setItem('dk-pledge', res.code);
+        } catch {
+          /* ignore */
+        }
+      } else {
+        // No backend: open an email request. No code is issued and nothing is charged until I confirm.
+        const body = [
+          `project: ${this.project().title}`,
+          `amount_usd: ${amount}`,
+          `discount_if_confirmed: ${t ? t.off + '%' : 'none'}`,
+          `name: ${name}`,
+          `email: ${email}`,
+        ].join('\n');
+        this.pledgeViaEmail.set(true);
+        location.href = `mailto:${this.site.email}?subject=${encodeURIComponent(
+          `Pledge request: ${this.project().title}`,
+        )}&body=${encodeURIComponent(body)}`;
       }
       requestAnimationFrame(() => this.pledgeSuccess?.nativeElement.focus());
     } catch {
       this.pledgeCode.set('');
       this.pledgeStatus.set('Sending failed. Please try again or email me directly.');
     }
+
     this.pledgeBusy.set(false);
   }
 
   resetPledge() {
     this.pledgeCode.set('');
+    this.pledgeViaEmail.set(false);
     this.pledgeName.set('');
     this.pledgeEmail.set('');
     this.pledgeStatus.set('');
@@ -145,6 +227,7 @@ export class App {
     this.projectId.set(this.content.defaultFundingId());
   }
 
+  // ---- Contact ----
   readonly c = signal({
     name: '',
     email: '',
@@ -153,6 +236,7 @@ export class App {
     timeline: 'Flexible',
   });
   readonly sent = signal(false);
+  readonly sentViaEmail = signal(false);
   readonly contactStatus = signal('');
   readonly contactBusy = signal(false);
   @ViewChild('contactSuccess') contactSuccess?: ElementRef<HTMLElement>;
@@ -168,37 +252,27 @@ export class App {
     }
     this.contactBusy.set(true);
     this.contactStatus.set('');
+
     try {
-      await this.send('New project enquiry', this.c());
+      if (environment.apiBase) {
+        await firstValueFrom(
+          this.http.post(`${environment.apiBase}/contact`, this.c(), { withCredentials: true }),
+        );
+      } else {
+        this.sentViaEmail.set(true);
+        const body = Object.entries(this.c())
+          .map(([k, v]) => `${k}: ${v}`)
+          .join('\n');
+        location.href = `mailto:${this.site.email}?subject=${encodeURIComponent(
+          'New project enquiry',
+        )}&body=${encodeURIComponent(body)}`;
+      }
       this.sent.set(true);
       requestAnimationFrame(() => this.contactSuccess?.nativeElement.focus());
     } catch {
       this.contactStatus.set('Sending failed. Please try again or email me directly.');
     }
-    this.contactBusy.set(false);
-  }
 
-  private async send(subject: string, data: Record<string, string>) {
-    const apiUrl = this.site.apiUrl;
-    if (apiUrl) {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 10_000);
-      try {
-        const r = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subject, ...data }),
-          signal: ctrl.signal,
-        });
-        if (!r.ok) throw new Error(`Request failed: ${r.status}`);
-      } finally {
-        clearTimeout(timer);
-      }
-      return;
-    }
-    const body = Object.entries(data)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join('\n');
-    location.href = `mailto:${this.site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    this.contactBusy.set(false);
   }
 }

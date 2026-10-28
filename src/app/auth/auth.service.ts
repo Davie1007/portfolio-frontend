@@ -1,39 +1,54 @@
-import { Injectable, signal } from '@angular/core';
-
-// ⚠️ Client-side gate only. Anyone can read this from the bundle.
-// Replace with a real backend session before using this admin on a public site.
-const ADMIN_PASSWORD = 'change-me-before-launch';
-const SESSION_KEY = 'dk-admin-session-v1';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  readonly signedIn = signal(this.hasSession());
+  private readonly http = inject(HttpClient);
+  readonly signedIn = signal(false);
 
-  private hasSession(): boolean {
+  constructor() {
+    if (!environment.apiBase) return;
+    this.http
+      .get<{ signedIn: boolean }>(`${environment.apiBase}/auth/me`, { withCredentials: true })
+      .subscribe({
+        next: (r) => this.signedIn.set(r.signedIn),
+        error: () => this.signedIn.set(false),
+      });
+  }
+
+  async login(email: string, password: string): Promise<boolean> {
+    const url = `${environment.apiBase}/auth/login`;
     try {
-      return localStorage.getItem(SESSION_KEY) === '1';
-    } catch {
+      await new Promise<void>((resolve, reject) => {
+        this.http
+          .post<{ ok: boolean }>(
+            url,
+            { email, password },
+            { withCredentials: true, observe: 'response' as any },
+          )
+          .subscribe({
+            next: () => resolve(),
+            error: (err) => reject(err),
+          });
+      });
+      this.signedIn.set(true);
+      return true;
+    } catch (err: any) {
+      // Log the server's actual reason so you can see it in DevTools → Console.
+      console.error('[login failed]', err.status, err.error);
+      this.signedIn.set(false);
       return false;
     }
   }
 
-  login(password: string): boolean {
-    if (password !== ADMIN_PASSWORD) return false;
-    try {
-      localStorage.setItem(SESSION_KEY, '1');
-    } catch {
-      /* ignore */
-    }
-    this.signedIn.set(true);
-    return true;
-  }
-
-  logout() {
-    try {
-      localStorage.removeItem(SESSION_KEY);
-    } catch {
-      /* ignore */
-    }
+  async logout(): Promise<void> {
+    await new Promise<void>((resolve) => {
+      this.http
+        .post(`${environment.apiBase}/auth/logout`, {}, { withCredentials: true })
+        .subscribe({ next: () => resolve(), error: () => resolve() });
+    });
     this.signedIn.set(false);
   }
 }
+

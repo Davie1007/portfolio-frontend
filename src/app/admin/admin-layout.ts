@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 import { ContentService } from '../services/content.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-layout',
@@ -74,6 +75,20 @@ import { ContentService } from '../services/content.service';
           </div>
         </div>
         <router-outlet />
+        <button
+          type="button"
+          class="btn btn-primary !py-2 text-sm"
+          (click)="save()"
+          [disabled]="saving()"
+        >
+          {{ saving() ? 'Saving…' : 'Save to server' }}
+        </button>
+        @if (saved()) {
+          <p class="mt-2 text-sm text-ok" role="status">{{ saved() }}</p>
+        }
+        @if (saveError()) {
+          <p class="mt-2 text-sm text-red-700" role="alert">{{ saveError() }}</p>
+        }
       </main>
     </div>
   `,
@@ -82,6 +97,24 @@ export class AdminLayout {
   readonly content = inject(ContentService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  readonly saving = signal(false);
+  readonly saved = signal('');
+  readonly saveError = signal('');
+
+  async save() {
+    this.saving.set(true);
+    this.saved.set('');
+    this.saveError.set('');
+    try {
+      await this.content.push();
+      this.saved.set('Saved to server at ' + new Date().toLocaleTimeString());
+    } catch (e) {
+      this.saveError.set('Save failed. Check that you are signed in.');
+    } finally {
+      this.saving.set(false);
+    }
+  }
 
   readonly links = [
     { path: '/admin', label: 'Overview', exact: true },

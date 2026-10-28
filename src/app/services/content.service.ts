@@ -1,7 +1,7 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {
   ABOUT,
-  DEFAULT_FUNDING_ID,
   DONATIONS,
   FUNDING,
   IDEAS,
@@ -17,6 +17,7 @@ import {
   TRUST_STRIP,
   WORK,
 } from '../content';
+import { environment } from '../../environments/environment';
 
 export type SiteConfig = typeof SITE;
 export type FundingCampaign = (typeof FUNDING)[number];
@@ -24,7 +25,7 @@ export type Testimonial = (typeof TESTIMONIALS)[number];
 export type WorkItem = (typeof WORK)[number];
 export type ServiceItem = (typeof SERVICES)[number];
 export type Tier = (typeof TIERS)[number];
-export type DonationConfig = typeof DONATIONS; // ← NEW
+export type DonationConfig = typeof DONATIONS;
 
 export interface SiteSnapshot {
   site: SiteConfig;
@@ -35,11 +36,11 @@ export interface SiteSnapshot {
   tiers: Tier[];
   presets: number[];
   terms: string[];
-  donations: DonationConfig; // ← NEW
+  donations: DonationConfig;
   updatedAt: string;
 }
 
-const STORAGE_KEY = 'dk-site-content-v1';
+const CACHE_KEY = 'dk-site-content-v2';
 
 function seed(): SiteSnapshot {
   return {
@@ -51,14 +52,15 @@ function seed(): SiteSnapshot {
     tiers: TIERS.map((t) => ({ ...t })),
     presets: [...PRESETS],
     terms: [...TERMS],
-    donations: structuredClone(DONATIONS), // ← NEW
+    donations: structuredClone(DONATIONS),
     updatedAt: new Date().toISOString(),
   };
 }
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
-  private readonly _state = signal<SiteSnapshot>(this.load());
+  private readonly http = inject(HttpClient);
+  private readonly _state = signal<SiteSnapshot>(this.readCache() ?? seed());
   readonly state = this._state.asReadonly();
 
   readonly site = computed(() => this._state().site);
@@ -69,8 +71,8 @@ export class ContentService {
   readonly tiers = computed(() => this._state().tiers);
   readonly presets = computed(() => this._state().presets);
   readonly terms = computed(() => this._state().terms);
-  readonly donations = computed(() => this._state().donations); // ← NEW
-  readonly defaultFundingId = computed(() => this._state().funding[0]?.id ?? DEFAULT_FUNDING_ID);
+  readonly donations = computed(() => this._state().donations);
+  readonly defaultFundingId = computed(() => this._state().funding[0]?.id ?? FUNDING[0].id);
 
   readonly nav = NAV;
   readonly promises = PROMISES;
@@ -80,33 +82,55 @@ export class ContentService {
   readonly about = ABOUT;
 
   constructor() {
+    // 1. Persist every change to the local cache (so reload is instant).
     effect(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this._state()));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(this._state()));
       } catch {
         /* ignore */
       }
     });
+
+    // 2. Pull fresh content from the server once on boot.
+    this.refresh();
   }
 
-  private load(): SiteSnapshot {
+  /** Load from server and overwrite local state. */
+  refresh(): Promise<void> {
+    return new Promise((resolve) => {
+      this.http
+        .get<SiteSnapshot>(`${environment.apiBase}/content`, { withCredentials: true })
+        .subscribe({
+          next: (payload) => {
+            this._state.set({ ...seed(), ...payload });
+            resolve();
+          },
+          error: () => resolve(), // offline: keep cache
+        });
+    });
+  }
+
+  /** Push current state to the server (admin only). */
+  async push(): Promise<void> {
+    await new Promise<void>((resolve, reject) => {
+      this.http
+        .put<SiteSnapshot>(`${environment.apiBase}/content`, this._state(), {
+          withCredentials: true,
+        })
+        .subscribe({ next: () => resolve(), error: (e) => reject(e) });
+    });
+  }
+
+  private readCache(): SiteSnapshot | null {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<SiteSnapshot>;
-        // Backfill donations if the stored snapshot predates this field.
-        return {
-          ...seed(),
-          ...parsed,
-          donations: parsed.donations ?? structuredClone(DONATIONS),
-        } as SiteSnapshot;
-      }
+      const raw = localStorage.getItem(CACHE_KEY);
+      return raw ? (JSON.parse(raw) as SiteSnapshot) : null;
     } catch {
-      /* fall through */
+      return null;
     }
-    return seed();
   }
 
+  // ---- Mutations (unchanged public API) ----
   patchSite(patch: Partial<SiteConfig>) {
     this._state.update((s) => ({
       ...s,
@@ -163,7 +187,6 @@ export class ContentService {
     this._state.update((s) => ({ ...s, terms, updatedAt: new Date().toISOString() }));
   }
 
-  // ---- NEW: donations ----
   patchDonations(patch: Partial<DonationConfig>) {
     this._state.update((s) => ({
       ...s,
