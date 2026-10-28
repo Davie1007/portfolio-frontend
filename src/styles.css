@@ -1,13 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  /* Huly-inspired palette */
   --color-paper: #f6f6f6;
   --color-ink: #0b0c0f;
   --color-obsidian: #090a0c;
-  --color-void: #111111;
-  --color-slate: #303236;
-  --color-iris: #5683da;
+  --color-iris: #4674c9;        /* darkened for AA contrast with white text */
+  --color-iris-soft: #5683da;   /* decorative accents only */
   --color-ember: #ff8964;
   --color-marker: #ffd84a;
   --color-rule: #c9d2da;
@@ -36,9 +34,10 @@ body {
   outline-offset: 3px;
 }
 
-/* Graph paper (kept for optional use on light bands) */
-.graph-paper {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M32 0H0V32' fill='none' stroke='%23c9d2da' stroke-width='1'/%3E%3C/svg%3E");
+/* Below-the-fold sections: skip rendering until near viewport. */
+#support, #testimonials, #contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
 }
 
 /* ---------- Hero canvas (dark aurora) ---------- */
@@ -51,7 +50,6 @@ body {
   color: #e9eaee;
 }
 .hero-canvas::before {
-  /* Aurora beam */
   content: "";
   position: absolute;
   inset: -20% -10% auto auto;
@@ -68,26 +66,13 @@ body {
   transform: rotate(-8deg);
   pointer-events: none;
 }
-.hero-canvas::after {
-  /* Subtle star field */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size: 3px 3px;
-  opacity: 0.35;
-  pointer-events: none;
-}
 .hero-canvas > * {
   position: relative;
   z-index: 1;
 }
 
-/* ---------- Hero product shot (3D-tilted frame) ---------- */
-.hero-shot {
-  position: relative;
-  perspective: 1400px;
-}
+/* ---------- Hero product shot ---------- */
+.hero-shot { position: relative; perspective: 1400px; }
 .hero-shot-glow {
   position: absolute;
   inset: 10% 5% -10% 5%;
@@ -107,14 +92,8 @@ body {
   transform: rotateY(-8deg) rotateX(4deg);
   transition: transform 0.5s ease;
 }
-.hero-shot-frame:hover {
-  transform: rotateY(-4deg) rotateX(2deg);
-}
-.hero-shot-img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
+.hero-shot-frame:hover { transform: rotateY(-4deg) rotateX(2deg); }
+.hero-shot-img { display: block; width: 100%; height: auto; }
 .hero-shot-caption {
   display: flex;
   align-items: center;
@@ -122,35 +101,37 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 10px 14px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.75);
   background: rgba(0, 0, 0, 0.25);
 }
 .hero-shot-dot {
   width: 6px;
   height: 6px;
   border-radius: 9999px;
-  background: var(--color-iris);
+  background: var(--color-iris-soft);
   box-shadow: 0 0 8px rgba(86, 131, 218, 0.8);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-shot-frame { transform: none; }
-  .hero-shot-frame:hover { transform: none; }
+  .hero-shot-frame, .hero-shot-frame:hover { transform: none; }
   html { scroll-behavior: auto; }
   .cta-pulse { animation: none; }
 }
 
 /* ---------- Header ---------- */
 .site-header {
-  background: rgba(9, 10, 12, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(9, 10, 12, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: #e9eaee;
 }
-.site-header.scrolled {
-  background: rgba(9, 10, 12, 0.9);
+@supports (backdrop-filter: blur(14px)) or (-webkit-backdrop-filter: blur(14px)) {
+  .site-header {
+    background: rgba(9, 10, 12, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
 }
+.site-header.scrolled { background: rgba(9, 10, 12, 0.92); }
 
 /* ---------- Forms & buttons ---------- */
 .field {
@@ -164,7 +145,7 @@ body {
 .field:focus {
   border-color: var(--color-iris);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(86, 131, 218, 0.2);
+  box-shadow: 0 0 0 3px rgba(70, 116, 201, 0.25);
 }
 
 .btn {
@@ -181,25 +162,22 @@ body {
   color: #fff;
 }
 .btn-primary:hover:not(:disabled) {
-  background: #6a94e3;
-  box-shadow: 0 0 28px rgba(86, 131, 218, 0.55);
+  background: #5585d8;
+  box-shadow: 0 4px 18px rgba(70, 116, 201, 0.45);
   transform: translateY(-1px);
 }
 .btn-ghost {
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: inherit;
   background: transparent;
 }
 .btn-ghost:hover {
-  border-color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.75);
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Hero pill CTA pulse */
-.cta-pulse {
-  animation: cta-pulse 3.6s ease-in-out infinite;
-}
+.cta-pulse { animation: cta-pulse 3.6s ease-in-out infinite; }
 @keyframes cta-pulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(86, 131, 218, 0.0); }
-  50%      { box-shadow: 0 0 32px rgba(86, 131, 218, 0.45); }
+  0%, 100% { box-shadow: 0 0 0 rgba(70, 116, 201, 0.0); }
+  50%      { box-shadow: 0 0 32px rgba(70, 116, 201, 0.5); }
 }

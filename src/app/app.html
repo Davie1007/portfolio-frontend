@@ -1,4 +1,9 @@
-<header class="site-header sticky top-0 z-20">
+<a href="#main"
+   class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink">
+  Skip to content
+</a>
+
+<header class="site-header sticky top-0 z-20" [class.scrolled]="scrolled()">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
     <a href="#top" class="font-display text-xl font-semibold text-white">{{ site.name }}</a>
     <nav class="hidden gap-6 text-sm text-white/70 lg:flex" aria-label="Main">
@@ -10,8 +15,10 @@
   </div>
 </header>
 
-<main id="top">
-  <!-- Hero (dark aurora + 3D product shot) -->
+<main id="main">
+  <span id="top" aria-hidden="true"></span>
+
+  <!-- Hero -->
   <section class="hero-canvas">
     <div class="mx-auto grid max-w-6xl gap-12 px-5 pt-20 pb-24 lg:grid-cols-2 lg:items-center lg:pt-28 lg:pb-32">
       <div>
@@ -30,19 +37,19 @@
           <a href="#services" class="btn btn-ghost">See what I build</a>
         </div>
         <div class="mt-10 flex items-center gap-3 text-sm text-white/60">
-          <img [src]="about.portrait" [alt]="about.portraitAlt"
+          <img [src]="about.portrait" alt=""
                class="h-10 w-10 rounded-full border border-white/20 object-cover"
-               width="40" height="40" loading="eager" />
-          <p><strong class="text-white">{{ site.name }}</strong> · {{ about.facts[1].value }}</p>
+               width="40" height="40" decoding="async" />
+          <p><strong class="text-white">{{ site.name }}</strong> · {{ basedIn }}</p>
         </div>
       </div>
 
-      <!-- 3D product shot frame -->
       <figure class="hero-shot">
         <div class="hero-shot-glow" aria-hidden="true"></div>
         <div class="hero-shot-frame">
           <img [src]="site.heroShot" [alt]="site.heroShotAlt"
-               class="hero-shot-img" width="1200" height="750" loading="eager" />
+               class="hero-shot-img" width="1200" height="750"
+               fetchpriority="high" decoding="async" />
           <div class="hero-shot-caption">
             <span class="hero-shot-dot" aria-hidden="true"></span>
             Creator Studio — live 3D product customiser
@@ -73,22 +80,27 @@
     </div>
   </section>
 
-  <!-- Promises (light) -->
-  <section class="border-b border-rule bg-white">
-    <div class="mx-auto grid max-w-6xl gap-8 px-5 py-14 md:grid-cols-3">
-      @for (p of promises; track p.title) {
-        <div>
-          <h2 class="font-display text-xl font-semibold">{{ p.title }}</h2>
-          <p class="mt-2 text-mute">{{ p.text }}</p>
-        </div>
-      }
+  <!-- Promises -->
+  <section class="border-b border-rule bg-white" aria-labelledby="promises-heading">
+    <div class="mx-auto max-w-6xl px-5 py-14">
+      <h2 id="promises-heading" class="sr-only">What I promise</h2>
+      <div class="grid gap-8 md:grid-cols-3">
+        @for (p of promises; track p.title) {
+          <div>
+            <h3 class="font-display text-xl font-semibold">{{ p.title }}</h3>
+            <p class="mt-2 text-mute">{{ p.text }}</p>
+          </div>
+        }
+      </div>
     </div>
   </section>
 
-  <!-- Capabilities (light) -->
-  <section class="border-b border-rule bg-paper">
+  <!-- Capabilities -->
+  <section class="border-b border-rule bg-paper" aria-labelledby="capabilities-heading">
     <div class="mx-auto max-w-6xl px-5 py-16">
-      <p class="text-sm font-medium uppercase tracking-wide text-mute">Engineering first, modelling where it helps</p>
+      <h2 id="capabilities-heading" class="text-sm font-medium uppercase tracking-wide text-mute">
+        Engineering first, modelling where it helps
+      </h2>
       <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @for (g of capabilities; track g.title) {
           <div class="border border-rule bg-white p-5 transition-shadow hover:shadow-sm">
@@ -100,16 +112,16 @@
     </div>
   </section>
 
-  <!-- About (light) -->
-  <section id="about" class="border-y border-rule bg-white">
+  <!-- About -->
+  <section id="about" class="border-y border-rule bg-white" aria-labelledby="about-heading">
     <div class="mx-auto grid max-w-6xl gap-10 px-5 py-20 md:grid-cols-[minmax(0,1fr)_2fr] md:items-start md:gap-14">
       <figure class="mt-6 grid grid-cols-2 gap-2">
         <img [src]="about.portrait" [alt]="about.portraitAlt"
              class="aspect-[4/5] w-full border border-rule object-cover"
-             loading="lazy" width="480" height="600" />
+             loading="lazy" decoding="async" width="480" height="600" />
         <img src="assets/desk.jpg" alt="David's workspace in Thika"
              class="aspect-[4/5] w-full border border-rule object-cover"
-             loading="lazy" width="480" height="600" />
+             loading="lazy" decoding="async" width="480" height="600" />
         <figcaption class="col-span-2 mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           @for (l of about.links; track l.href) {
             <a [href]="l.href" target="_blank" rel="noopener me"
@@ -121,7 +133,7 @@
 
       <div>
         <p class="text-sm font-medium uppercase tracking-wide text-mute">The person behind the systems</p>
-        <h2 class="mt-2 font-display text-3xl font-semibold sm:text-4xl">{{ about.heading }}</h2>
+        <h2 id="about-heading" class="mt-2 font-display text-3xl font-semibold sm:text-4xl">{{ about.heading }}</h2>
         @for (p of about.bio; track $index) {
           <p class="mt-4 max-w-2xl text-lg leading-relaxed text-mute">{{ p }}</p>
         }
@@ -140,9 +152,9 @@
     </div>
   </section>
 
-  <!-- Services (light) -->
-  <section id="services" class="mx-auto max-w-6xl px-5 py-20">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl">What I build for your business</h2>
+  <!-- Services -->
+  <section id="services" class="mx-auto max-w-6xl px-5 py-20" aria-labelledby="services-heading">
+    <h2 id="services-heading" class="font-display text-3xl font-semibold sm:text-4xl">What I build for your business</h2>
     <p class="mt-3 max-w-2xl text-mute">Tell me the problem. I'll propose the smallest system that solves it well.</p>
     <div class="mt-10 grid border-l border-t border-rule sm:grid-cols-2">
       @for (s of services; track s.title) {
@@ -155,10 +167,10 @@
     </div>
   </section>
 
-  <!-- Approach (dark band) -->
-  <section id="approach" class="bg-obsidian text-white">
+  <!-- Approach -->
+  <section id="approach" class="bg-obsidian text-white" aria-labelledby="approach-heading">
     <div class="mx-auto max-w-6xl px-5 py-24">
-      <h2 class="font-display text-3xl font-semibold sm:text-4xl">How I make software that holds up</h2>
+      <h2 id="approach-heading" class="font-display text-3xl font-semibold sm:text-4xl">How I make software that holds up</h2>
       <p class="mt-3 max-w-2xl text-white/65">
         Engineering practices that keep your system correct, fast and maintainable — with
         AI and statistical modelling applied where they genuinely improve the outcome.
@@ -176,7 +188,7 @@
       <ol class="mt-6 grid gap-6 md:grid-cols-5">
         @for (s of steps; track s.title; let n = $index) {
           <li class="border-t-2 border-iris pt-3">
-            <span class="font-mono text-sm text-white/50">Step {{ n + 1 }}</span>
+            <span class="font-mono text-sm text-white/70">Step {{ n + 1 }}</span>
             <h4 class="font-display text-lg font-semibold">{{ s.title }}</h4>
             <p class="mt-1 text-sm text-white/60">{{ s.text }}</p>
           </li>
@@ -185,9 +197,9 @@
     </div>
   </section>
 
-  <!-- Work (light) -->
-  <section id="work" class="mx-auto max-w-6xl px-5 py-20">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl">Selected systems</h2>
+  <!-- Work -->
+  <section id="work" class="mx-auto max-w-6xl px-5 py-20" aria-labelledby="work-heading">
+    <h2 id="work-heading" class="font-display text-3xl font-semibold sm:text-4xl">Selected systems</h2>
     <p class="mt-3 max-w-2xl text-mute">Business systems, ERP deployments, 3D web apps — and AI features where they earn their place.</p>
     <ul class="mt-8 border-t border-ink">
       @for (w of work; track w.title) {
@@ -195,7 +207,7 @@
           @if (w.image) {
             <img [src]="w.image" [alt]="w.imageAlt ?? w.title"
                  class="aspect-[16/10] w-full rounded-md border border-rule object-cover"
-                 loading="lazy" width="800" height="500" />
+                 loading="lazy" decoding="async" width="800" height="500" />
           }
           <div>
             <h3 class="font-display text-xl font-semibold">
@@ -205,6 +217,9 @@
               } @else { {{ w.title }} }
             </h3>
             <p class="mt-2 text-mute">{{ w.text }}</p>
+            @if (!w.href) {
+              <a href="#contact" class="mt-2 inline-block text-sm underline underline-offset-4 hover:text-iris">Ask for details</a>
+            }
           </div>
           <p class="text-sm md:text-right">{{ w.stack }}</p>
         </li>
@@ -212,37 +227,38 @@
     </ul>
   </section>
 
-  <!-- Back a project (product-style funding panel) -->
-  <section id="support" class="border-y border-rule bg-white">
+  <!-- Back a project -->
+  <section id="support" class="border-y border-rule bg-white" aria-labelledby="support-heading">
     <div class="mx-auto max-w-6xl px-5 py-24">
-      <!-- Section header with live totals -->
       <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 class="font-display text-3xl font-semibold sm:text-4xl">Back a project. Get a discount on yours.</h2>
+          <h2 id="support-heading" class="font-display text-3xl font-semibold sm:text-4xl">Back a project. Get a discount on yours.</h2>
           <p class="mt-3 max-w-2xl text-mute">
             These are the tools I'm building in the open. Back one and receive a discount code
             for your own project — a way to get the software you want for less, while funding
             the tools you'd use anyway.
           </p>
         </div>
-        <dl class="grid grid-cols-3 gap-6 border border-rule bg-paper px-5 py-4 text-center">
-          <div>
-            <dt class="text-xs uppercase tracking-wide text-mute">Raised</dt>
-            <dd class="font-display text-xl font-semibold">${{ totalRaised() }}</dd>
-          </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wide text-mute">Goal</dt>
-            <dd class="font-display text-xl font-semibold">${{ totalGoal() }}</dd>
-          </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wide text-mute">Backers</dt>
-            <dd class="font-display text-xl font-semibold">{{ totalBackers() }}</dd>
-          </div>
-        </dl>
+        @if (hasFundingData()) {
+          <dl class="grid grid-cols-3 gap-6 border border-rule bg-paper px-5 py-4 text-center">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-mute">Raised</dt>
+              <dd class="font-display text-xl font-semibold">${{ totalRaised() }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-mute">Goal</dt>
+              <dd class="font-display text-xl font-semibold">${{ totalGoal() }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-mute">Backers</dt>
+              <dd class="font-display text-xl font-semibold">{{ totalBackers() }}</dd>
+            </div>
+          </dl>
+        }
       </div>
 
       <div class="mt-12 grid gap-12 lg:grid-cols-2">
-        <!-- Left: campaign cards -->
+        <!-- Campaign cards -->
         <div class="space-y-4">
           @for (f of funding; track f.id) {
             <article class="rounded-2xl border border-rule bg-paper p-5">
@@ -257,7 +273,12 @@
               </div>
 
               <div class="mt-4">
-                <div class="h-2 overflow-hidden rounded-full bg-white">
+                <div class="h-2 overflow-hidden rounded-full bg-white"
+                     role="progressbar"
+                     [attr.aria-valuenow]="pct(f)"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     [attr.aria-label]="f.title + ' funding progress'">
                   <div class="h-2 rounded-full bg-iris transition-all" [style.width.%]="pct(f)"></div>
                 </div>
                 <div class="mt-2 flex items-center justify-between text-sm">
@@ -274,28 +295,34 @@
           }
         </div>
 
-        <!-- Right: pledge panel -->
+        <!-- Pledge panel -->
         <div class="rounded-2xl border border-rule bg-paper p-5 sm:p-6">
           @if (pledgeCode()) {
             <div role="status">
-              <h3 class="font-display text-2xl font-semibold">Thank you for backing {{ project().title }}.</h3>
+              <h3 #pledgeSuccess tabindex="-1" class="font-display text-2xl font-semibold focus:outline-none">
+                Thank you for backing {{ project().title }}.
+              </h3>
               <p class="mt-3">Your discount code:</p>
               <p class="mt-2 inline-block rounded bg-marker px-3 py-2 font-mono text-xl font-medium">{{ pledgeCode() }}</p>
               <p class="mt-3 text-sm text-mute">I'll confirm your pledge by email. Quote this code when you request your project.</p>
-              <button type="button" class="btn btn-ghost mt-6 !border-ink !text-ink hover:!bg-ink hover:!text-white" (click)="resetPledge()">
+              <button type="button"
+                      class="btn btn-ghost mt-6 !border-ink !text-ink hover:!bg-ink hover:!text-white"
+                      (click)="resetPledge()">
                 Back another project
               </button>
             </div>
           } @else {
-            <form (submit)="$event.preventDefault(); pledge()" class="space-y-5">
+            <form #pf (submit)="$event.preventDefault(); pledge(pf)" novalidate class="space-y-5">
               <fieldset>
                 <legend class="mb-2 font-medium">1. Choose a project</legend>
-                <div class="space-y-2">
+                <div class="space-y-2" role="radiogroup" aria-label="Choose a project">
                   @for (f of funding; track f.id) {
                     <label class="block cursor-pointer rounded-md border bg-white p-3 transition-colors"
                            [class.border-iris]="projectId() === f.id"
                            [class.border-rule]="projectId() !== f.id">
-                      <input type="radio" name="project" class="mr-2 accent-iris" [checked]="projectId() === f.id" (change)="projectId.set(f.id)" />
+                      <input type="radio" name="project" class="mr-2 accent-iris"
+                             [checked]="projectId() === f.id"
+                             (change)="projectId.set(f.id)" />
                       <span class="font-medium">{{ f.title }}</span>
                       <span class="mt-1 block text-sm text-mute">{{ f.text }}</span>
                       <span class="mt-2 block h-2 overflow-hidden rounded-full bg-paper" aria-hidden="true">
@@ -306,79 +333,123 @@
                   }
                 </div>
               </fieldset>
+
               <fieldset>
                 <legend class="mb-2 font-medium">2. Choose an amount (USD)</legend>
                 <div class="flex flex-wrap items-center gap-2">
                   @for (p of presets; track p) {
-                    <button type="button" class="btn border border-ink !py-2" [class.bg-ink]="amount() === p" [class.text-white]="amount() === p" (click)="amount.set(p)">${{ p }}</button>
+                    <button type="button"
+                            class="btn border border-ink !py-2"
+                            [class.bg-ink]="amount() === p"
+                            [class.text-white]="amount() === p"
+                            (click)="amount.set(p)">
+                      ${{ p }}
+                    </button>
                   }
-                  <input type="number" min="1" class="field !w-28" aria-label="Custom amount in US dollars" [value]="amount()" (input)="setAmount($event)" />
+                  <input type="number" min="1" class="field !w-28"
+                         aria-label="Custom amount in US dollars"
+                         [value]="amount()"
+                         (input)="setAmount($event)" />
                 </div>
-                <p class="mt-3 text-sm" aria-live="polite">
-                  @if (tier(); as t) { You'll receive <strong class="rounded bg-marker px-1">{{ t.off }}% off</strong> your own project. } @else { Pledge ${{ tiers[0].min }} or more to earn a discount. }
+                <p class="mt-3 text-sm" aria-live="polite" aria-atomic="true">
+                  @if (tier(); as t) {
+                    You'll receive <strong class="rounded bg-marker px-1">{{ t.off }}% off</strong> your own project.
+                  } @else {
+                    Pledge ${{ tiers[0].min }} or more to earn a discount.
+                  }
                 </p>
               </fieldset>
+
               <fieldset class="space-y-3">
                 <legend class="mb-2 font-medium">3. Your details</legend>
-                <input class="field" name="pn" placeholder="Your name" aria-label="Your name" required [value]="pledgeName()" (input)="pledgeName.set($any($event.target).value)" />
-                <input class="field" name="pe" type="email" placeholder="Email address" aria-label="Email address" required [value]="pledgeEmail()" (input)="pledgeEmail.set($any($event.target).value)" />
+                <input class="field" name="pn" placeholder="Your name" aria-label="Your name" required
+                       [value]="pledgeName()" (input)="pledgeName.set($any($event.target).value)" />
+                <input class="field" name="pe" type="email" placeholder="Email address" aria-label="Email address" required
+                       [value]="pledgeEmail()" (input)="pledgeEmail.set($any($event.target).value)" />
               </fieldset>
-              <button class="btn btn-primary w-full" [disabled]="busy()">
-                {{ busy() ? 'Sending…' : 'Back this project — $' + amount() }}
+
+              <button class="btn btn-primary w-full" [disabled]="pledgeBusy()">
+                {{ pledgeBusy() ? 'Sending…' : 'Back this project — $' + amount() }}
               </button>
               <p class="text-xs text-mute">Secure payment via M-Pesa or card. Discount code issued on confirmation.</p>
-              @if (status()) { <p class="text-sm text-red-700" role="alert">{{ status() }}</p> }
+              @if (pledgeStatus()) { <p class="text-sm text-red-700" role="alert">{{ pledgeStatus() }}</p> }
             </form>
           }
         </div>
       </div>
 
-      <!-- Terms -->
       <div class="mt-12 border-t border-rule pt-6">
         <ul class="grid gap-2 text-sm text-mute sm:grid-cols-2">
-          @for (t of terms; track t) { <li class="flex gap-2"><span aria-hidden="true">·</span><span>{{ t }}</span></li> }
+          @for (t of terms; track $index) { <li class="flex gap-2"><span aria-hidden="true">·</span><span>{{ t }}</span></li> }
         </ul>
       </div>
+
+      <app-donate />
     </div>
   </section>
 
-  <!-- Testimonials (light) -->
-  <section id="testimonials" class="mx-auto max-w-4xl px-5 py-24">
-    <h2 class="font-display text-3xl font-semibold sm:text-4xl">What clients say</h2>
+  <!-- Testimonials -->
+  <section id="testimonials" class="mx-auto max-w-4xl px-5 py-24" aria-labelledby="testimonials-heading">
+    <h2 id="testimonials-heading" class="font-display text-3xl font-semibold sm:text-4xl">What clients say</h2>
     @let q = testimonials[quoteIdx()];
     <blockquote class="mt-8 border-l-4 border-iris pl-6">
-      <p class="font-display text-2xl leading-snug sm:text-3xl">“{{ q.quote }}”</p>
+      <p class="font-display text-2xl leading-snug sm:text-3xl">"{{ q.quote }}"</p>
       <footer class="mt-4 text-mute"><strong class="text-ink">{{ q.name }}</strong>, {{ q.role }}</footer>
       @if (q.placeholder) { <p class="mt-2 text-xs text-mute">Sample testimonial. Replace before launch.</p> }
     </blockquote>
     <div class="mt-6 flex gap-2" role="group" aria-label="Choose testimonial">
       @for (t of testimonials; track $index; let i = $index) {
-        <button class="h-3 w-10 rounded-full border border-ink transition-colors" [class.bg-ink]="i === quoteIdx()" [attr.aria-label]="'Testimonial ' + (i + 1)" [attr.aria-pressed]="i === quoteIdx()" (click)="quoteIdx.set(i)"></button>
+        <button type="button"
+                class="relative grid h-3 w-10 place-items-center rounded-full border border-ink transition-colors before:absolute before:-inset-2 before:content-['']"
+                [class.bg-ink]="i === quoteIdx()"
+                [attr.aria-label]="'Testimonial ' + (i + 1)"
+                [attr.aria-pressed]="i === quoteIdx()"
+                (click)="setQuote(i)"></button>
       }
     </div>
   </section>
 
-  <!-- Contact (dark) -->
-  <section id="contact" class="bg-obsidian text-white">
+  <!-- Contact -->
+  <section id="contact" class="bg-obsidian text-white" aria-labelledby="contact-heading">
     <div class="mx-auto grid max-w-6xl gap-10 px-5 py-24 lg:grid-cols-2">
       <div>
-        <h2 class="font-display text-3xl font-semibold sm:text-4xl">Let's build the system your business needs.</h2>
+        <h2 id="contact-heading" class="font-display text-3xl font-semibold sm:text-4xl">Let's build the system your business needs.</h2>
         <p class="mt-4 max-w-md text-white/70">Describe the problem in a few lines. I reply within two working days with questions or a proposed scope.</p>
         <p class="mt-6 text-white/60">{{ site.location }}</p>
       </div>
       @if (sent()) {
-        <p class="rounded-2xl bg-white p-6 text-ink" role="status">Thank you, {{ c().name }}. I'll be in touch within two working days.</p>
+        <p #contactSuccess tabindex="-1" class="rounded-2xl bg-white p-6 text-ink focus:outline-none" role="status">
+          Thank you, {{ c().name }}. I'll be in touch within two working days.
+        </p>
       } @else {
-        <form (submit)="$event.preventDefault(); contact()" class="space-y-3 rounded-2xl bg-white p-6 text-ink">
-          <input class="field" name="n" placeholder="Your name" aria-label="Your name" required (input)="upd('name', $any($event.target).value)" />
-          <input class="field" name="e" type="email" placeholder="Email address" aria-label="Email address" required (input)="upd('email', $any($event.target).value)" />
-          <textarea class="field" name="d" rows="4" placeholder="What does your business need?" aria-label="What does your business need" required (input)="upd('need', $any($event.target).value)"></textarea>
+        <form #cf (submit)="$event.preventDefault(); contact(cf)" novalidate
+              class="space-y-3 rounded-2xl bg-white p-6 text-ink">
+          <input class="field" name="n" placeholder="Your name" aria-label="Your name" required
+                 (input)="upd('name', $any($event.target).value)" />
+          <input class="field" name="e" type="email" placeholder="Email address" aria-label="Email address" required
+                 (input)="upd('email', $any($event.target).value)" />
+          <textarea class="field" name="d" rows="4" placeholder="What does your business need?"
+                    aria-label="What does your business need" required
+                    (input)="upd('need', $any($event.target).value)"></textarea>
           <div class="grid gap-3 sm:grid-cols-2">
-            <select class="field" name="b" aria-label="Budget" (change)="upd('budget', $any($event.target).value)"><option>Not sure yet</option><option>Under $1,000</option><option>$1,000 to $5,000</option><option>$5,000 to $20,000</option><option>Over $20,000</option></select>
-            <select class="field" name="t" aria-label="Timeline" (change)="upd('timeline', $any($event.target).value)"><option>Flexible</option><option>Within 1 month</option><option>1 to 3 months</option><option>3 months or more</option></select>
+            <select class="field" name="b" aria-label="Budget" (change)="upd('budget', $any($event.target).value)">
+              <option>Not sure yet</option>
+              <option>Under $1,000</option>
+              <option>$1,000 to $5,000</option>
+              <option>$5,000 to $20,000</option>
+              <option>Over $20,000</option>
+            </select>
+            <select class="field" name="t" aria-label="Timeline" (change)="upd('timeline', $any($event.target).value)">
+              <option>Flexible</option>
+              <option>Within 1 month</option>
+              <option>1 to 3 months</option>
+              <option>3 months or more</option>
+            </select>
           </div>
-          <button class="btn btn-primary w-full">Send enquiry</button>
-          @if (status()) { <p class="text-sm text-red-700" role="alert">{{ status() }}</p> }
+          <button class="btn btn-primary w-full" [disabled]="contactBusy()">
+            {{ contactBusy() ? 'Sending…' : 'Send enquiry' }}
+          </button>
+          @if (contactStatus()) { <p class="text-sm text-red-700" role="alert">{{ contactStatus() }}</p> }
         </form>
       }
     </div>
@@ -388,6 +459,9 @@
 <footer class="bg-obsidian pb-10 text-sm text-white/60">
   <div class="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 border-t border-white/10 px-5 pt-6">
     <p>© {{ year }} {{ site.name }}</p>
-    <p><a class="underline hover:text-white" [href]="'mailto:' + site.email">{{ site.email }}</a></p>
+    <p class="flex flex-wrap gap-4">
+      <a routerLink="/admin" class="underline hover:text-white">Admin</a>
+      <a class="underline hover:text-white" [href]="'mailto:' + site.email">{{ site.email }}</a>
+    </p>
   </div>
 </footer>

@@ -1,101 +1,94 @@
-import { Component, HostListener, computed, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   ABOUT,
   capabilities,
-  FUNDING,
+  DEFAULT_FUNDING_ID,
   IDEAS,
   NAV,
-  PRESETS,
   PROMISES,
-  SERVICES,
-  SITE,
   STEPS,
-  TERMS,
-  TESTIMONIALS,
-  TIERS,
   TRUST_STRIP,
-  WORK,
 } from './content';
+import { ContentService } from './services/content.service';
+import { DonateComponent } from './donate/donate.component';
 
-@Component({ selector: 'app-root', imports: [FormsModule], templateUrl: './app.html' })
+@Component({
+  selector: 'app-root',
+  imports: [FormsModule, RouterLink, DonateComponent],
+  templateUrl: './app.html',
+})
 export class App {
-  readonly site = SITE;
+  private readonly content = inject(ContentService);
+
+  readonly site = this.content.site();
+  readonly services = this.content.services();
+  readonly work = this.content.work();
+  readonly testimonials = this.content.testimonials();
+  readonly tiers = this.content.tiers();
+  readonly presets = this.content.presets();
+  readonly funding = this.content.funding();
+  readonly terms = this.content.terms();
+
   readonly nav = NAV;
   readonly trust = TRUST_STRIP;
   readonly promises = PROMISES;
-  readonly services = SERVICES;
   readonly steps = STEPS;
   readonly ideas = IDEAS;
-  readonly work = WORK;
-  readonly testimonials = TESTIMONIALS;
-  readonly tiers = TIERS;
-  readonly presets = PRESETS;
-  readonly funding = FUNDING;
-  readonly terms = TERMS;
-  readonly year = new Date().getFullYear();
   readonly about = ABOUT;
+  readonly capabilities = capabilities;
+  readonly basedIn = this.about.facts.find((f) => f.label === 'Based in')?.value ?? '';
+  readonly year = new Date().getFullYear();
 
-  // Header scroll state
   readonly scrolled = signal(false);
+  private ticking = false;
   @HostListener('window:scroll')
   onScroll() {
-    this.scrolled.set(window.scrollY > 8);
-    const header = document.querySelector('.site-header');
-    header?.classList.toggle('scrolled', this.scrolled());
+    if (this.ticking) return;
+    this.ticking = true;
+    requestAnimationFrame(() => {
+      this.scrolled.set(window.scrollY > 8);
+      this.ticking = false;
+    });
   }
 
-  // Hero: Fourier partial sums (kept for potential reuse; not rendered in hero now).
-  readonly W = 560;
-  readonly H = 260;
-  readonly terms_n = signal(5);
-  private readonly xs = Array.from({ length: 281 }, (_, i) => (i / 280) * 2 * Math.PI);
-  private py = (y: number) => this.H / 2 - (y * (this.H / 2 - 16)) / 1.3;
-  private series = computed(() =>
-    this.xs.map((x) => {
-      let s = 0;
-      for (let k = 1; k <= this.terms_n(); k++) s += Math.sin((2 * k - 1) * x) / (2 * k - 1);
-      return (4 / Math.PI) * s;
-    }),
-  );
-  readonly curve = computed(() =>
-    this.series()
-      .map(
-        (y, i) =>
-          `${i ? 'L' : 'M'}${((this.xs[i] / (2 * Math.PI)) * this.W).toFixed(1)},${this.py(y).toFixed(1)}`,
-      )
-      .join(''),
-  );
-  readonly target = `M0,${this.py(1)}H${this.W / 2}V${this.py(-1)}H${this.W}`;
-  readonly error = computed(() => {
-    const e = this.series().map((y, i) => y - (this.xs[i] < Math.PI ? 1 : -1));
-    return Math.sqrt(e.reduce((a, b) => a + b * b, 0) / e.length) * 100;
-  });
-  setTerms(e: Event) {
-    this.terms_n.set(+(e.target as HTMLInputElement).value);
-  }
-
-  // Testimonials
   readonly quoteIdx = signal(0);
+  setQuote(i: number) {
+    this.quoteIdx.set(i);
+  }
 
-  // Back a project
-  readonly projectId = signal(FUNDING[0].id);
+  readonly projectId = signal(DEFAULT_FUNDING_ID);
   readonly amount = signal(100);
   readonly pledgeName = signal('');
   readonly pledgeEmail = signal('');
-  readonly tier = computed(() => [...TIERS].reverse().find((t) => this.amount() >= t.min) ?? null);
-  readonly project = computed(() => FUNDING.find((f) => f.id === this.projectId())!);
+  readonly pledgeBusy = signal(false);
   readonly pledgeCode = signal('');
-  readonly status = signal('');
-  readonly busy = signal(false);
+  readonly pledgeStatus = signal('');
+  @ViewChild('pledgeSuccess') pledgeSuccess?: ElementRef<HTMLElement>;
 
-  // Aggregate campaign stats for the section header.
-  readonly totalRaised = computed(() => FUNDING.reduce((s, f) => s + f.raised, 0));
-  readonly totalGoal = computed(() => FUNDING.reduce((s, f) => s + f.goal, 0));
-  readonly totalBackers = computed(() => FUNDING.reduce((s, f) => s + f.backers, 0));
+  readonly tier = computed(
+    () => [...this.tiers].reverse().find((t) => this.amount() >= t.min) ?? null,
+  );
+  readonly project = computed(
+    () => this.funding.find((f) => f.id === this.projectId()) ?? this.funding[0],
+  );
+
+  readonly totalRaised = computed(() => this.funding.reduce((s, f) => s + f.raised, 0));
+  readonly totalGoal = computed(() => this.funding.reduce((s, f) => s + f.goal, 0));
+  readonly totalBackers = computed(() => this.funding.reduce((s, f) => s + f.backers, 0));
+  readonly hasFundingData = computed(() => this.totalRaised() > 0 || this.totalBackers() > 0);
 
   pct(f: { goal: number; raised: number }) {
-    return Math.min(100, Math.round((f.raised / f.goal) * 100));
+    return f.goal ? Math.min(100, Math.round((f.raised / f.goal) * 100)) : 0;
   }
   isFunded(f: { goal: number; raised: number }) {
     return f.raised >= f.goal;
@@ -104,41 +97,54 @@ export class App {
     this.amount.set(Math.max(1, Math.floor(+(e.target as HTMLInputElement).value || 0)));
   }
 
-  async pledge() {
+  async pledge(form?: HTMLFormElement) {
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const amount = this.amount();
+    const name = this.pledgeName().trim();
+    const email = this.pledgeEmail().trim();
+    if (amount < this.tiers[0].min || !name || !email) {
+      this.pledgeStatus.set('Please enter a valid amount, name and email.');
+      return;
+    }
     const t = this.tier();
-    this.busy.set(true);
-    this.status.set('');
     const code = 'DK-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+    this.pledgeBusy.set(true);
+    this.pledgeStatus.set('');
+    this.pledgeCode.set(code);
     try {
       await this.send(`Project pledge: ${this.project().title}`, {
-        name: this.pledgeName(),
-        email: this.pledgeEmail(),
+        name,
+        email,
         project: this.project().title,
-        amount_usd: String(this.amount()),
+        amount_usd: String(amount),
         discount: t ? `${t.off}%` : 'none',
         code,
       });
-      this.pledgeCode.set(code);
       try {
         localStorage.setItem('dk-pledge', code);
       } catch {
-        /* storage unavailable */
+        /* ignore */
       }
+      requestAnimationFrame(() => this.pledgeSuccess?.nativeElement.focus());
     } catch {
-      this.status.set('Sending failed. Please try again or email me directly.');
+      this.pledgeCode.set('');
+      this.pledgeStatus.set('Sending failed. Please try again or email me directly.');
     }
-    this.busy.set(false);
+    this.pledgeBusy.set(false);
   }
 
   resetPledge() {
     this.pledgeCode.set('');
     this.pledgeName.set('');
     this.pledgeEmail.set('');
+    this.pledgeStatus.set('');
     this.amount.set(100);
-    this.projectId.set(FUNDING[0].id);
+    this.projectId.set(this.content.defaultFundingId());
   }
 
-  // Contact
   readonly c = signal({
     name: '',
     email: '',
@@ -147,33 +153,52 @@ export class App {
     timeline: 'Flexible',
   });
   readonly sent = signal(false);
+  readonly contactStatus = signal('');
+  readonly contactBusy = signal(false);
+  @ViewChild('contactSuccess') contactSuccess?: ElementRef<HTMLElement>;
+
   upd(key: 'name' | 'email' | 'need' | 'budget' | 'timeline', v: string) {
     this.c.update((o) => ({ ...o, [key]: v }));
   }
-  async contact() {
+
+  async contact(form?: HTMLFormElement) {
+    if (form && !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    this.contactBusy.set(true);
+    this.contactStatus.set('');
     try {
       await this.send('New project enquiry', this.c());
       this.sent.set(true);
+      requestAnimationFrame(() => this.contactSuccess?.nativeElement.focus());
     } catch {
-      this.status.set('Sending failed. Please try again or email me directly.');
+      this.contactStatus.set('Sending failed. Please try again or email me directly.');
     }
+    this.contactBusy.set(false);
   }
 
   private async send(subject: string, data: Record<string, string>) {
-    if (SITE.apiUrl) {
-      const r = await fetch(SITE.apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject, ...data }),
-      });
-      if (!r.ok) throw new Error('request failed');
+    const apiUrl = this.site.apiUrl;
+    if (apiUrl) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 10_000);
+      try {
+        const r = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subject, ...data }),
+          signal: ctrl.signal,
+        });
+        if (!r.ok) throw new Error(`Request failed: ${r.status}`);
+      } finally {
+        clearTimeout(timer);
+      }
       return;
     }
     const body = Object.entries(data)
       .map(([k, v]) => `${k}: ${v}`)
       .join('\n');
-    location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    location.href = `mailto:${this.site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
-
-  protected readonly capabilities = capabilities;
 }

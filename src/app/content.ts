@@ -4,7 +4,6 @@ export const SITE = {
   location: 'Thika, Kenya · working with clients worldwide',
   email: 'hello@karanjadavid.com',
   apiUrl: '',
-  // Hero product shot (used in the 3D-tilted hero frame).
   heroShot: 'assets/hero.webp',
   heroShotAlt:
     'Creator Studio 3D editor — a product on a turntable being customised in the browser',
@@ -13,12 +12,12 @@ export const SITE = {
 export const NAV = [
   { label: 'Work', href: '#work' },
   { label: 'Services', href: '#services' },
+  { label: 'About', href: '#about' },
   { label: 'How I work', href: '#approach' },
   { label: 'Back a project', href: '#support' },
   { label: 'Testimonials', href: '#testimonials' },
 ];
 
-// Short trust strip under the hero. Use sector labels now; swap `logo` in later.
 export const TRUST_STRIP = {
   intro: 'Systems currently running in production for',
   items: [
@@ -152,7 +151,7 @@ export const IDEAS = [
   },
   {
     title: 'Stated uncertainty',
-    math: 'mean ± 2σ, not “about”',
+    math: 'mean ± 2σ, not "about"',
     text: 'Forecasts and estimates come with intervals and stated assumptions, so you can decide how much to trust them. That is what separates analysis from guessing.',
   },
 ];
@@ -231,7 +230,6 @@ export const TESTIMONIALS = [
   },
 ];
 
-// Donation tiers: a pledge at or above `min` earns that discount on a future project.
 export const TIERS = [
   { min: 25, off: 5 },
   { min: 100, off: 10 },
@@ -239,7 +237,6 @@ export const TIERS = [
 ];
 export const PRESETS = [25, 100, 250];
 
-// Funding campaigns. `backers` and `updates` make the section read like a real product.
 export const FUNDING = [
   {
     id: 'creator',
@@ -270,6 +267,8 @@ export const FUNDING = [
   },
 ];
 
+export const DEFAULT_FUNDING_ID = FUNDING[0].id;
+
 export const TERMS = [
   'Your pledge goes to the project you choose.',
   'It earns a discount code for a project of yours, valid for 12 months.',
@@ -296,3 +295,67 @@ export const ABOUT = {
     { label: 'GitHub', href: 'https://github.com/your-handle' },
   ],
 };
+export type DonationChannel = {
+  id: string;
+  label: string;
+  description: string;
+  url: string; // external link (buymeacoffee, ko-fi, etc.) OR empty for M-Pesa
+  kind: 'link' | 'mpesa';
+  active: boolean;
+};
+
+export const DONATIONS = {
+  heading: 'Support the work',
+  intro:
+    'If something I built or wrote saved you time, you can chip in — no strings, no discount code, no obligation. Every bit helps keep these tools open.',
+  // M-Pesa one-off settings (only used if a channel has kind: 'mpesa').
+  mpesa: {
+    paybill: '',
+    till: '',
+    account: 'support',
+  },
+  channels: [
+    {
+      id: 'bmac',
+      label: 'Buy Me a Coffee',
+      description: 'One-off tip via card — good if you’re outside Kenya.',
+      url: 'https://buymeacoffee.com/your-handle',
+      kind: 'link',
+      active: true,
+    },
+    {
+      id: 'kofi',
+      label: 'Ko-fi',
+      description: 'One-off tip, no account needed.',
+      url: 'https://ko-fi.com/your-handle',
+      kind: 'link',
+      active: false,
+    },
+    {
+      id: 'gh',
+      label: 'GitHub Sponsors',
+      description: 'Recurring support if you want to fund ongoing work.',
+      url: 'https://github.com/sponsors/your-handle',
+      kind: 'link',
+      active: false,
+    },
+    {
+      id: 'paypal',
+      label: 'PayPal.me',
+      description: 'One-off tip via PayPal.',
+      url: 'https://paypal.me/your-handle',
+      kind: 'link',
+      active: false,
+    },
+    {
+      id: 'mpesa',
+      label: 'M-Pesa',
+      description: 'Send a one-off tip from Kenya. No code, no follow-up.',
+      url: '',
+      kind: 'mpesa',
+      active: false,
+    },
+  ] as DonationChannel[],
+};
+
+export type DonationConfig = typeof DONATIONS;
