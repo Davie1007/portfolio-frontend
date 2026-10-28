@@ -11,19 +11,15 @@ type DonationChannel = ReturnType<ContentService['donations']>['channels'][numbe
     @if (activeChannels().length) {
       <section
         aria-labelledby="donate-heading"
-        class="mt-12 rounded-2xl border border-rule bg-paper p-6"
+        class="mt-12 rounded-xl border border-white/10 bg-white/[.02] p-6"
       >
-        <h3 id="donate-heading" class="font-display text-2xl font-semibold">
-          {{ config().heading }}
-        </h3>
-        <p class="mt-2 max-w-2xl text-mute">{{ config().intro }}</p>
-
+        <h3 id="donate-heading" class="font-display text-2xl">{{ config().heading }}</h3>
+        <p class="mt-2 max-w-2xl text-white/60">{{ config().intro }}</p>
         <ul class="mt-6 grid gap-3 sm:grid-cols-2">
           @for (c of activeChannels(); track c.id) {
-            <li class="rounded-xl border border-rule bg-white p-4">
+            <li class="rounded-xl border border-white/10 bg-white/[.03] p-4">
               <p class="font-medium">{{ c.label }}</p>
-              <p class="mt-1 text-sm text-mute">{{ c.description }}</p>
-
+              <p class="mt-1 text-sm text-white/60">{{ c.description }}</p>
               @if (c.kind === 'link' && c.url) {
                 <a
                   [href]="c.url"
@@ -31,11 +27,10 @@ type DonationChannel = ReturnType<ContentService['donations']>['channels'][numbe
                   rel="noopener noreferrer"
                   class="btn btn-primary mt-3 block text-center"
                   (click)="onTipClick(c)"
+                  >Tip via {{ c.label }} ↗</a
                 >
-                  Tip via {{ c.label }} ↗
-                </a>
               } @else if (c.kind === 'mpesa') {
-                <div class="mt-3 rounded-md border border-rule bg-paper p-3 text-sm">
+                <div class="mt-3 rounded-md border border-white/10 bg-white/[.03] p-3 text-sm">
                   @if (config().mpesa.paybill) {
                     <p>
                       Paybill: <strong>{{ config().mpesa.paybill }}</strong>
@@ -56,13 +51,11 @@ type DonationChannel = ReturnType<ContentService['donations']>['channels'][numbe
             </li>
           }
         </ul>
-
-        <p class="mt-4 text-xs text-mute">
+        <p class="mt-4 text-xs text-white/40">
           Donations are gifts — no discount code, no follow-up, no expectation. Thank you.
         </p>
-
         @if (thanked()) {
-          <p class="mt-3 text-sm text-ok" role="status">{{ thanked() }}</p>
+          <p class="mt-3 text-sm text-[var(--color-ok)]" role="status">{{ thanked() }}</p>
         }
       </section>
     }
@@ -106,8 +99,7 @@ export class DonateComponent {
           this.thanked.set('Thanks for considering a tip — every bit helps.');
           setTimeout(() => this.thanked.set(''), 6000);
         },
-        error: () => {
-        },
+        error: () => {},
       });
   }
 }

@@ -8,6 +8,7 @@ import {
   computed,
   inject,
   signal,
+  effect,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -274,5 +275,30 @@ export class App implements AfterViewInit, OnDestroy {
     }
 
     this.contactBusy.set(false);
+  }
+
+  // add near the other signals
+  readonly tokensOpen = signal(false);
+  readonly accent = signal('#6d8dff');
+  readonly radius = signal(6);
+
+  setAccent(hex: string) {
+    this.accent.set(hex);
+    document.documentElement.style.setProperty('--accent', hex);
+  }
+  setRadius(px: number) {
+    this.radius.set(px);
+    document.documentElement.style.setProperty('--radius-ui', px + 'px');
+  }
+
+  // reset tokens when the panel is closed
+  constructor() {
+    // existing constructor body...
+    effect(() => {
+      if (!this.tokensOpen()) {
+        document.documentElement.style.removeProperty('--accent');
+        document.documentElement.style.removeProperty('--radius-ui');
+      }
+    });
   }
 }

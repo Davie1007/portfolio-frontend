@@ -1,9 +1,9 @@
-<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2">Skip to content</a>
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ink">Skip to content</a>
 <div class="progress" aria-hidden="true"><i [style.width.%]="progress()"></i></div>
 
-<header class="site-header sticky top-0 z-30">
+<header class="site-header sticky top-0 z-30" [class.scrolled]="scrolled()">
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-    <a href="#top" class="font-display text-xl font-semibold">{{ site.name }}</a>
+    <a href="#top" class="font-display text-xl">{{ site.name }}</a>
     <nav class="hidden gap-7 text-sm lg:flex" aria-label="Main">
       @for (l of nav; track l.href) {
         <a [href]="l.href" class="nav-link" [class.active]="'#' + active() === l.href">{{ l.label }}</a>
@@ -11,7 +11,7 @@
     </nav>
     <div class="flex items-center gap-2">
       <a href="#contact" class="btn btn-primary !py-2 text-sm">Start a project</a>
-      <button type="button" class="grid h-10 w-10 place-items-center rounded border border-rule lg:hidden"
+      <button type="button" class="grid h-10 w-10 place-items-center rounded-full border border-white/20 lg:hidden"
               [attr.aria-expanded]="menuOpen()" aria-label="Menu" (click)="menuOpen.set(!menuOpen())">{{ menuOpen() ? '✕' : '☰' }}</button>
     </div>
   </div>
@@ -25,106 +25,118 @@
 <main id="main">
   <span id="top" aria-hidden="true"></span>
 
-  <!-- Hero: statement on the left, a live figure on the right -->
-  <section class="grid-paper border-b border-rule">
-    <div class="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-24">
+  <!-- HERO -->
+  <section class="hero-canvas">
+    <div class="mx-auto grid max-w-6xl gap-14 px-5 py-20 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
       <div>
-        <p class="text-mute">{{ site.role }}</p>
-        <h1 class="mt-4 text-5xl font-medium leading-[1.02] sm:text-6xl lg:text-7xl">
-          Business systems, built to work and to keep working.
+        <p class="eyebrow">$ whoami — {{ site.role }}</p>
+        <h1 class="mt-5 text-5xl leading-[1.02] sm:text-6xl lg:text-7xl">
+          Business systems,<br class="hidden sm:block" />
+          built to work —<br class="hidden sm:block" />
+          and to keep working.<span class="ml-1 inline-block w-[0.55ch] animate-pulse" style="color: var(--color-iris)">▍</span>
         </h1>
-        <p class="mt-6 max-w-lg text-lg text-mute">
+        <p class="mt-6 max-w-xl text-lg text-white/70">
           Full-stack engineer with a maths degree. I build business systems, ERP and 3D web apps, and add models only where they improve a decision.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href="#contact" class="btn btn-primary">Tell me what you need</a>
           <a href="#work" class="btn btn-ghost">See what I've built</a>
-          @if (waLink) { <a [href]="waLink" target="_blank" rel="noopener" class="btn btn-ghost">Message me on WhatsApp</a> }
+          @if (waLink) { <a [href]="waLink" target="_blank" rel="noopener" class="btn btn-ghost">WhatsApp</a> }
         </div>
-        <div class="mt-10 flex items-center gap-3 text-sm text-mute">
-          <img [src]="about.portrait" alt="" class="h-11 w-11 rounded-full border border-rule object-cover" width="44" height="44" decoding="async" />
-          <p><strong class="text-ink">{{ site.name }}</strong><br />{{ basedIn }}</p>
+        <div class="mt-10 flex items-center gap-3 text-sm text-white/60">
+          <img [src]="about.portrait" alt="" class="h-11 w-11 rounded-full border border-white/15 object-cover" width="44" height="44" decoding="async" />
+          <p><strong class="text-white">{{ site.name }}</strong><br />{{ basedIn }}</p>
         </div>
       </div>
 
-      <figure class="plot border border-ink bg-white p-4 sm:p-5">
-        <svg viewBox="0 0 480 280" role="img" aria-label="Demand forecast with a confidence band that narrows as history grows" class="w-full">
-          <g stroke="#d3d8e0" stroke-width="1">
-            @for (g of [60, 110, 160, 210]; track g) { <path [attr.d]="'M30 ' + g + ' H450'" /> }
-          </g>
-          <path d="M30 20 V240 H460" fill="none" stroke="#11161d" stroke-width="1.5" />
-          <path d="M270 20 V240" stroke="#566070" stroke-dasharray="4 4" />
-          <text x="276" y="34" font-size="11" fill="#566070">today</text>
-          <text x="30" y="262" font-size="11" fill="#566070">time</text>
-          <text x="6" y="14" font-size="11" fill="#566070">orders per week</text>
-          <path class="band" [attr.d]="bandPath()" fill="#2340e8" fill-opacity=".16" />
-          <path class="fit" d="M30 210 L450 88" fill="none" stroke="#2340e8" stroke-width="2.5" stroke-linecap="round" />
-          @for (p of dots; track p.x) { <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3.5" fill="#11161d" /> }
-        </svg>
-        <figcaption class="mt-3 border-t border-rule pt-3 text-sm">
-          <label for="hist" class="flex items-baseline justify-between gap-3">
-            <span class="font-medium">Weeks of history: {{ n() }}</span>
-            <span class="font-mono">next quarter ±{{ moe().toFixed(1) }}%</span>
+      <!-- Live figure in the tilted frame -->
+      <figure class="hero-shot signal">
+        <div class="hero-shot-glow" aria-hidden="true"></div>
+        <div class="hero-shot-frame">
+          <svg viewBox="0 0 480 280" role="img"
+               aria-label="Demand forecast with a confidence band that narrows as history grows"
+               class="block w-full">
+            <g stroke="rgba(255,255,255,.08)" stroke-width="1">
+              @for (g of [60, 110, 160, 210]; track g) { <path [attr.d]="'M30 ' + g + ' H450'" /> }
+            </g>
+            <path d="M30 20 V240 H460" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.2" />
+            <path d="M270 20 V240" stroke="rgba(255,255,255,.28)" stroke-dasharray="4 4" />
+            <text x="276" y="34" font-size="11" fill="rgba(255,255,255,.55)" font-family="IBM Plex Mono, monospace">today</text>
+            <text x="30" y="262" font-size="11" fill="rgba(255,255,255,.55)" font-family="IBM Plex Mono, monospace">time</text>
+            <text x="6" y="14" font-size="11" fill="rgba(255,255,255,.55)" font-family="IBM Plex Mono, monospace">orders / week</text>
+            <path class="band" [attr.d]="bandPath()" fill="var(--color-iris)" />
+            <path class="fit" d="M30 210 L450 88" fill="none" stroke="var(--color-iris)" stroke-width="2.5" stroke-linecap="round" />
+            @for (p of dots; track p.x) { <circle class="pt" [attr.cx]="p.x" [attr.cy]="p.y" r="3" fill="#e9eaee" /> }
+          </svg>
+          <figcaption class="hero-shot-caption">
+            <span class="inline-block h-1.5 w-1.5 rounded-full" style="background: var(--color-iris)"></span>
+            Figure 1 — more data, narrower margin of error
+          </figcaption>
+        </div>
+        <div class="mt-4">
+          <label for="hist" class="flex items-baseline justify-between gap-3 text-sm text-white/70">
+            <span class="font-medium text-white">Weeks of history: {{ n() }}</span>
+            <span class="font-mono text-xs">next quarter ±{{ moe().toFixed(1) }}%</span>
           </label>
-          <input id="hist" type="range" min="4" max="400" class="plot-range mt-2" [value]="n()" (input)="setN($event)" />
-          <p class="mt-2 text-mute">Figure 1. Illustration: more data, narrower margin of error.</p>
-        </figcaption>
+          <input id="hist" type="range" min="4" max="400" class="mt-2 w-full accent-[var(--color-iris)]" [value]="n()" (input)="setN($event)" />
+        </div>
       </figure>
     </div>
   </section>
 
-  <!-- Proof -->
-  <section class="border-b border-rule bg-white" aria-labelledby="promises-heading">
-    <div class="mx-auto max-w-6xl px-5 py-12">
+  <!-- PROOF strip -->
+  <section class="hair-t" aria-labelledby="promises-heading">
+    <div class="mx-auto max-w-6xl px-5 py-14">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm text-mute">{{ trust.intro }}</p>
+        <p class="eyebrow">{{ trust.intro }}</p>
         <ul class="flex flex-wrap gap-x-8 gap-y-2">
           @for (t of trust.items; track t.label) {
-            <li class="flex items-center gap-2 text-sm font-medium">
-              @if (t.logo) { <img [src]="t.logo" [alt]="t.label" class="h-5 w-auto" /> }
-              @else { <span class="inline-block h-2 w-2 bg-iris" aria-hidden="true"></span> }
-              <span>{{ t.label }}</span>
+            <li class="flex items-center gap-2 text-sm text-white/70">
+              <span class="inline-block h-1.5 w-1.5 rounded-full" style="background: var(--color-iris)" aria-hidden="true"></span>
+              {{ t.label }}
             </li>
           }
         </ul>
       </div>
       <h2 id="promises-heading" class="sr-only">What I promise</h2>
-      <div class="mt-10 grid gap-8 border-t border-rule pt-10 md:grid-cols-3">
+      <div class="mt-12 grid gap-10 hair-t pt-10 md:grid-cols-3">
         @for (p of promises; track p.title) {
           <div>
-            <h3 class="text-2xl font-medium">{{ p.title }}</h3>
-            <p class="mt-2 line-clamp-2 text-mute">{{ p.text }}</p>
+            <h3 class="text-2xl">{{ p.title }}</h3>
+            <p class="mt-2 line-clamp-2 text-white/60">{{ p.text }}</p>
           </div>
         }
       </div>
     </div>
   </section>
 
-  <!-- Services: a ruled ledger, not cards -->
+  <!-- SERVICES -->
   <section id="services" class="mx-auto max-w-6xl px-5 py-24" aria-labelledby="services-heading">
-    <div class="grid gap-10 md:grid-cols-[1fr_2.2fr]">
+    <div class="grid gap-12 md:grid-cols-[1fr_2.2fr]">
       <div class="md:sticky md:top-24 md:self-start">
-        <h2 id="services-heading" class="text-4xl font-medium">What I build</h2>
+        <p class="eyebrow">What I do</p>
+        <h2 id="services-heading" class="mt-3 text-4xl">What I build</h2>
       </div>
       <div>
-        <ul class="border-t border-ink">
+        <ul class="hair-t">
           @for (s of services; track s.title) {
-            <li class="grid gap-3 border-b border-rule py-7 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
-              <h3 class="text-2xl font-medium">{{ s.title }}</h3>
+            <li class="grid gap-3 hair-b py-8 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
+              <h3 class="text-2xl">{{ s.title }}</h3>
               <div>
-                <p class="line-clamp-2 text-mute">{{ s.text }}</p>
-                <p class="mt-3 inline bg-marker px-1.5 py-0.5 text-sm font-medium">{{ s.result }}</p>
+                <p class="line-clamp-2 text-white/60">{{ s.text }}</p>
+                <p class="mt-3 inline marker text-sm text-white">{{ s.result }}</p>
               </div>
             </li>
           }
         </ul>
 
-        <div class="mt-14">
-          <h3 class="text-2xl font-medium">{{ local.title }}</h3>
-          <dl class="mt-4 border-t border-ink">
+        <div class="mt-16">
+          <p class="eyebrow">Local</p>
+          <h3 class="mt-2 text-2xl">{{ local.title }}</h3>
+          <dl class="mt-4 hair-t">
             @for (l of local.items; track l.title) {
-              <div class="grid gap-1 border-b border-rule py-4 sm:grid-cols-[220px_1fr] sm:gap-6">
-                <dt class="font-medium">{{ l.title }}</dt><dd class="line-clamp-2 text-mute">{{ l.text }}</dd>
+              <div class="grid gap-1 hair-b py-4 sm:grid-cols-[220px_1fr] sm:gap-6">
+                <dt class="font-medium">{{ l.title }}</dt><dd class="line-clamp-2 text-white/60">{{ l.text }}</dd>
               </div>
             }
           </dl>
@@ -133,141 +145,155 @@
     </div>
   </section>
 
-  <!-- Work -->
-  <section id="work" class="border-y border-rule bg-white" aria-labelledby="work-heading">
+  <!-- WORK -->
+  <section id="work" class="hair-t" aria-labelledby="work-heading">
     <div class="mx-auto max-w-6xl px-5 py-24">
-      <h2 id="work-heading" class="text-4xl font-medium">Selected systems</h2>
-      <figure class="mt-10 border border-ink">
-        <img [src]="site.heroShot" [alt]="site.heroShotAlt" class="w-full object-cover" width="1200" height="750" loading="lazy" decoding="async" />
-        <figcaption class="border-t border-ink px-4 py-3 text-sm">Creator Studio: live 3D product customiser.</figcaption>
+      <p class="eyebrow">Selected systems</p>
+      <h2 id="work-heading" class="mt-3 text-4xl">Selected systems</h2>
+
+      <figure class="hero-shot mt-10">
+        <div class="hero-shot-glow" aria-hidden="true"></div>
+        <div class="hero-shot-frame">
+          <img [src]="site.heroShot" [alt]="site.heroShotAlt" class="block w-full object-cover" width="1200" height="750" loading="lazy" decoding="async" />
+          <figcaption class="hero-shot-caption">
+            <span class="inline-block h-1.5 w-1.5 rounded-full" style="background: var(--color-iris)"></span>
+            Creator Studio — live 3D product customiser
+          </figcaption>
+        </div>
       </figure>
 
-      <ul class="mt-10 border-t border-ink">
+      <ul class="mt-12 hair-t">
         @for (w of work; track w.title) {
-          <li class="group grid gap-4 border-b border-rule py-6 md:grid-cols-[180px_1fr_200px] md:items-start md:gap-8">
+          <li class="group grid gap-5 hair-b py-6 md:grid-cols-[180px_1fr_200px] md:items-start md:gap-8">
             @if (w.image) {
-              <div class="overflow-hidden border border-rule">
+              <div class="overflow-hidden rounded-lg border border-white/10">
                 <img [src]="w.image" [alt]="w.imageAlt ?? w.title" class="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" width="800" height="500" />
               </div>
             }
             <div>
-              <h3 class="text-2xl font-medium">
-                @if (w.href) { <a [href]="w.href" target="_blank" rel="noopener" class="underline decoration-iris decoration-2 underline-offset-4 hover:text-iris">{{ w.title }}</a> }
+              <h3 class="text-2xl">
+                @if (w.href) { <a [href]="w.href" target="_blank" rel="noopener" class="underline decoration-2 underline-offset-4 hover:text-[var(--color-iris)]" style="text-decoration-color: var(--color-iris)">{{ w.title }}</a> }
                 @else { {{ w.title }} }
               </h3>
-              <p class="mt-2 line-clamp-2 text-mute">{{ w.text }}</p>
-              @if (!w.href) { <a href="#contact" class="mt-2 inline-block text-sm underline underline-offset-4 hover:text-iris">Ask for details</a> }
+              <p class="mt-2 line-clamp-2 text-white/60">{{ w.text }}</p>
+              @if (!w.href) { <a href="#contact" class="mt-2 inline-block text-sm underline underline-offset-4 hover:text-[var(--color-iris)]">Ask for details</a> }
             </div>
-            <p class="font-mono text-sm text-mute md:text-right">{{ w.stack }}</p>
+            <p class="font-mono text-xs text-white/50 md:text-right">{{ w.stack }}</p>
           </li>
         }
       </ul>
     </div>
   </section>
 
-  <!-- Evidence for the maths claim -->
+  <!-- EVIDENCE -->
   @if (proofs.length) {
     <section id="evidence" class="mx-auto max-w-6xl px-5 py-24" aria-labelledby="evidence-heading">
-      <h2 id="evidence-heading" class="text-4xl font-medium">Models, checked against reality</h2>
-      <div class="mt-10 space-y-10">
+      <p class="eyebrow">Evidence</p>
+      <h2 id="evidence-heading" class="mt-3 text-4xl">Models, checked against reality</h2>
+      <div class="mt-10 space-y-8">
         @for (p of proofs; track p.title) {
-          <article class="border border-ink bg-white p-6">
-            <h3 class="text-2xl font-medium">{{ p.title }}</h3>
+          <article class="rounded-xl border border-white/10 bg-white/[.02] p-6">
+            <h3 class="text-2xl">{{ p.title }}</h3>
             <dl class="mt-5 grid gap-x-8 gap-y-4 sm:grid-cols-[160px_1fr]">
-              <dt class="font-medium text-mute">Problem</dt><dd>{{ p.problem }}</dd>
-              <dt class="font-medium text-mute">Result</dt><dd><span class="bg-marker px-1.5 py-0.5 font-medium">{{ p.result }}</span></dd>
+              <dt class="text-white/50">Problem</dt><dd>{{ p.problem }}</dd>
+              <dt class="text-white/50">Result</dt><dd><span class="marker font-medium text-white">{{ p.result }}</span></dd>
             </dl>
             <details class="mt-4">
-              <summary class="cursor-pointer underline decoration-iris decoration-2 underline-offset-4">How it was built and checked</summary>
-              <dl class="mt-3 grid gap-x-8 gap-y-3 text-mute sm:grid-cols-[160px_1fr]">
-                <dt class="font-medium">Method</dt><dd>{{ p.method }}</dd>
-                <dt class="font-medium">Test</dt><dd>{{ p.check }}</dd>
+              <summary class="cursor-pointer underline underline-offset-4 hover:text-[var(--color-iris)]">How it was built and checked</summary>
+              <dl class="mt-3 grid gap-x-8 gap-y-3 text-white/60 sm:grid-cols-[160px_1fr]">
+                <dt class="text-white/70">Method</dt><dd>{{ p.method }}</dd>
+                <dt class="text-white/70">Test</dt><dd>{{ p.check }}</dd>
               </dl>
             </details>
-            @if (p.href) { <a [href]="p.href" target="_blank" rel="noopener" class="mt-5 inline-block underline decoration-iris decoration-2 underline-offset-4 hover:text-iris">{{ p.hrefLabel ?? 'See the details' }}</a> }
-            @if (p.placeholder) { <p class="mt-4 text-xs text-mute">Sample entry. Replace with a real project before launch.</p> }
+            @if (p.href) { <a [href]="p.href" target="_blank" rel="noopener" class="mt-5 inline-block underline underline-offset-4 hover:text-[var(--color-iris)]">{{ p.hrefLabel ?? 'See the details' }}</a> }
+            @if (p.placeholder) { <p class="mt-4 text-xs text-white/40">Sample entry. Replace with a real project before launch.</p> }
           </article>
         }
       </div>
     </section>
   }
 
-  <!-- Approach: principles as theorem boxes, process as a real sequence -->
-  <section id="approach" class="bg-ink text-white" aria-labelledby="approach-heading">
+  <!-- APPROACH (dark band, theorem boxes) -->
+  <section id="approach" class="hair-t hair-b" aria-labelledby="approach-heading">
     <div class="mx-auto max-w-6xl px-5 py-24">
-      <h2 id="approach-heading" class="max-w-3xl text-4xl font-medium">How I make software that holds up</h2>
+      <p class="eyebrow">How I work</p>
+      <h2 id="approach-heading" class="mt-3 max-w-3xl text-4xl">How I make software that holds up</h2>
       <div class="mt-12 grid gap-4 md:grid-cols-3">
         @for (i of ideas; track i.title) {
-          <article class="theorem">
-            <b>{{ i.title }}</b>
-            <p class="mt-3 bg-white/10 px-2 py-1.5 font-mono text-sm">{{ i.math }}</p>
-            <p class="mt-3 line-clamp-2 text-white/70">{{ i.text }}</p>
+          <article class="rounded-xl border border-white/10 bg-white/[.02] p-5">
+            <b class="font-display text-lg">{{ i.title }}</b>
+            <p class="mt-3 rounded bg-white/[.06] px-2 py-1.5 font-mono text-sm">{{ i.math }}</p>
+            <p class="mt-3 line-clamp-2 text-white/60">{{ i.text }}</p>
           </article>
         }
       </div>
 
-      <h3 class="mt-20 text-3xl font-medium">How a project runs</h3>
+      <h3 class="mt-20 text-3xl">How a project runs</h3>
       <ol class="mt-8 grid gap-6 md:grid-cols-5">
         @for (s of steps; track s.title; let n = $index) {
-          <li class="border-t-2 border-white pt-3">
-            <span class="font-mono text-sm text-white/70">Step {{ n + 1 }}</span>
-            <h4 class="mt-1 text-xl font-medium">{{ s.title }}</h4>
+          <li class="border-t border-white/60 pt-3">
+            <span class="font-mono text-xs text-white/50">Step {{ n + 1 }}</span>
+            <h4 class="mt-1 text-xl">{{ s.title }}</h4>
           </li>
         }
       </ol>
     </div>
   </section>
 
-  <!-- Toolbox + About -->
+  <!-- ABOUT -->
   <section id="about" class="mx-auto max-w-6xl px-5 py-24" aria-labelledby="about-heading">
     <div class="grid gap-12 md:grid-cols-[1fr_2.2fr]">
       <figure class="grid grid-cols-2 gap-2 md:sticky md:top-24 md:self-start">
-        <img [src]="about.portrait" [alt]="about.portraitAlt" class="aspect-[4/5] w-full border border-rule object-cover" loading="lazy" decoding="async" width="480" height="600" />
-        <img src="assets/desk.jpg" alt="David's workspace in Thika" class="aspect-[4/5] w-full border border-rule object-cover" loading="lazy" decoding="async" width="480" height="600" />
+        <img [src]="about.portrait" [alt]="about.portraitAlt" class="aspect-[4/5] w-full rounded-lg border border-white/10 object-cover" loading="lazy" decoding="async" width="480" height="600" />
+        <img src="assets/desk.jpg" alt="David's workspace in Thika" class="aspect-[4/5] w-full rounded-lg border border-white/10 object-cover" loading="lazy" decoding="async" width="480" height="600" />
         <figcaption class="col-span-2 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           @for (l of about.links; track l.href) {
-            <a [href]="l.href" target="_blank" rel="noopener me" class="underline decoration-iris decoration-2 underline-offset-4 hover:text-iris">{{ l.label }}</a>
+            <a [href]="l.href" target="_blank" rel="noopener me" class="underline underline-offset-4 hover:text-[var(--color-iris)]">{{ l.label }}</a>
           }
-          <a [href]="'mailto:' + site.email" class="underline decoration-iris decoration-2 underline-offset-4 hover:text-iris">Email</a>
+          <a [href]="'mailto:' + site.email" class="underline underline-offset-4 hover:text-[var(--color-iris)]">Email</a>
         </figcaption>
       </figure>
       <div>
-        <h2 id="about-heading" class="text-4xl font-medium">{{ about.heading }}</h2>
-        @if (about.bio.length) { <p class="mt-4 max-w-2xl text-lg text-mute">{{ about.bio[0] }}</p> }
+        <p class="eyebrow">About</p>
+        <h2 id="about-heading" class="mt-3 text-4xl">{{ about.heading }}</h2>
+        @if (about.bio.length) { <p class="mt-4 max-w-2xl text-lg text-white/70">{{ about.bio[0] }}</p> }
         @if (about.bio.length > 1) {
           <details class="mt-3">
-            <summary class="cursor-pointer underline decoration-iris decoration-2 underline-offset-4">More about me</summary>
-            @for (p of about.bio.slice(1); track $index) { <p class="mt-3 max-w-2xl text-mute">{{ p }}</p> }
+            <summary class="cursor-pointer underline underline-offset-4 hover:text-[var(--color-iris)]">More about me</summary>
+            @for (p of about.bio.slice(1); track $index) { <p class="mt-3 max-w-2xl text-white/60">{{ p }}</p> }
           </details>
         }
-        <dl class="mt-8 grid gap-x-8 gap-y-3 border-t border-ink pt-6 text-sm sm:grid-cols-2">
+        <dl class="mt-8 grid gap-x-8 gap-y-3 hair-t pt-6 text-sm sm:grid-cols-2">
           @for (f of about.facts; track f.label) {
-            <div><dt class="font-medium text-mute">{{ f.label }}</dt><dd class="mt-0.5">{{ f.value }}</dd></div>
+            <div><dt class="text-white/50">{{ f.label }}</dt><dd class="mt-0.5">{{ f.value }}</dd></div>
           }
         </dl>
 
-        <h3 class="mt-12 text-2xl font-medium">Toolbox</h3>
+        <h3 class="mt-12 text-2xl">Toolbox</h3>
         <ul class="mt-4 flex flex-wrap gap-2">
-          @for (g of capabilities; track g.title) { <li class="border border-rule bg-white px-3 py-1.5 text-sm" [attr.title]="g.text">{{ g.title }}</li> }
+          @for (g of capabilities; track g.title) {
+            <li class="rounded-full border border-white/15 px-3 py-1.5 text-sm text-white/80" [attr.title]="g.text">{{ g.title }}</li>
+          }
         </ul>
         <a href="#contact" class="btn btn-primary mt-8">Tell me about your project</a>
       </div>
     </div>
   </section>
 
-  <!-- Back a project -->
-  <section id="support" class="border-y border-rule bg-white" aria-labelledby="support-heading">
+  <!-- SUPPORT -->
+  <section id="support" class="hair-t" aria-labelledby="support-heading">
     <div class="mx-auto max-w-6xl px-5 py-24">
       <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 id="support-heading" class="text-4xl font-medium">Back a project. Get a discount on yours.</h2>
-          <p class="mt-3 max-w-xl text-mute">Back a tool I'm building and get a discount on your own project.</p>
+          <p class="eyebrow">Back a project</p>
+          <h2 id="support-heading" class="mt-3 text-4xl">Back a project. Get a discount on yours.</h2>
+          <p class="mt-3 max-w-xl text-white/60">Back a tool I'm building and get a discount on your own project.</p>
         </div>
         @if (hasFundingData()) {
-          <dl class="grid grid-cols-3 gap-6 border border-ink px-5 py-4 text-center">
-            <div><dt class="text-xs text-mute">Raised</dt><dd class="font-display text-2xl font-medium">$<span [countUp]="totalRaised()">0</span></dd></div>
-            <div><dt class="text-xs text-mute">Goal</dt><dd class="font-display text-2xl font-medium">$<span [countUp]="totalGoal()">0</span></dd></div>
-            <div><dt class="text-xs text-mute">Backers</dt><dd class="font-display text-2xl font-medium"><span [countUp]="totalBackers()">0</span></dd></div>
+          <dl class="grid grid-cols-3 gap-6 rounded-xl border border-white/10 px-5 py-4 text-center">
+            <div><dt class="text-xs text-white/50">Raised</dt><dd class="font-display text-2xl">$<span [countUp]="totalRaised()">0</span></dd></div>
+            <div><dt class="text-xs text-white/50">Goal</dt><dd class="font-display text-2xl">$<span [countUp]="totalGoal()">0</span></dd></div>
+            <div><dt class="text-xs text-white/50">Backers</dt><dd class="font-display text-2xl"><span [countUp]="totalBackers()">0</span></dd></div>
           </dl>
         }
       </div>
@@ -275,43 +301,44 @@
       <div class="mt-12 grid gap-12 lg:grid-cols-2">
         <div class="space-y-4">
           @for (f of funding; track f.id) {
-            <article class="border p-5" [class.border-iris]="projectId() === f.id" [class.border-rule]="projectId() !== f.id">
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="text-xl font-medium">{{ f.title }}</h3>
-                  <p class="mt-1 line-clamp-2 text-sm text-mute">{{ f.text }}</p>
-                </div>
-                @if (isFunded(f)) { <span class="shrink-0 bg-ok/10 px-2 py-1 text-xs font-medium text-ok">Funded</span> }
+            <article class="rounded-xl border p-5 lift" [class.border-[var(--color-iris)]]="projectId() === f.id" [class.border-white/10]="projectId() !== f.id">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-xl">{{ f.title }}</h3>
+                <p class="mt-1 line-clamp-2 text-sm text-white/60">{{ f.text }}</p>
               </div>
-              <div class="mt-4">
-                <div class="h-2 bg-paper" role="progressbar" [attr.aria-valuenow]="pct(f)" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="f.title + ' funding progress'">
-                  <div class="h-2 bg-iris transition-all duration-1000" [style.width.%]="pct(f)"></div>
-                </div>
-                <div class="mt-2 flex items-center justify-between text-sm">
-                  <span class="font-medium">${{ f.raised }} <span class="font-normal text-mute">of ${{ f.goal }}</span></span>
-                  <span class="text-mute">{{ pct(f) }}% funded, {{ f.backers }} backers</span>
-                </div>
+              @if (isFunded(f)) { <span class="shrink-0 rounded-full bg-[var(--color-ok)]/15 px-2 py-1 text-xs font-medium text-[var(--color-ok)]">Funded</span> }
+            </div>
+            <div class="mt-4">
+              <div class="h-1.5 overflow-hidden rounded-full bg-white/10" role="progressbar" [attr.aria-valuenow]="pct(f)" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="f.title + ' funding progress'">
+                <div class="h-1.5 rounded-full" style="background: var(--color-iris); transition: width 1s" [style.width.%]="pct(f)"></div>
               </div>
-              <div class="mt-3 flex items-center justify-between gap-3">
-                <p class="text-xs text-mute">{{ f.updates }}</p>
-                <button type="button" class="text-sm underline decoration-iris decoration-2 underline-offset-4 hover:text-iris" (click)="projectId.set(f.id)">Select</button>
+              <div class="mt-2 flex items-center justify-between text-sm">
+                <span class="font-medium">${{ f.raised }} <span class="font-normal text-white/50">of ${{ f.goal }}</span></span>
+                <span class="text-white/50">{{ pct(f) }}% · {{ f.backers }} backers</span>
               </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3">
+              <p class="text-xs text-white/40">{{ f.updates }}</p>
+              <button type="button" class="text-sm underline underline-offset-4 hover:text-[var(--color-iris)]" (click)="projectId.set(f.id)">Select</button>
+            </div>
             </article>
           }
         </div>
 
-        <div class="border border-ink p-5 sm:p-6">
+        <!-- pledge form (unchanged logic) -->
+        <div class="rounded-xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
           @if (pledgeCode() || pledgeViaEmail()) {
             <div role="status">
               @if (pledgeCode()) {
-                <h3 #pledgeSuccess tabindex="-1" class="text-2xl font-medium focus:outline-none">Thank you for backing {{ project().title }}.</h3>
+                <h3 #pledgeSuccess tabindex="-1" class="text-2xl focus:outline-none">Thank you for backing {{ project().title }}.</h3>
                 <p class="mt-3">Your discount code:</p>
-                <p class="mt-2 inline-block bg-marker px-3 py-2 font-mono text-xl font-medium">{{ pledgeCode() }}</p>
-                <p class="mt-3 text-sm text-mute">I'll confirm your pledge by email. Quote this code when you request your project.</p>
+                <p class="mt-2 inline-block rounded bg-[var(--color-iris)]/20 px-3 py-2 font-mono text-xl">{{ pledgeCode() }}</p>
+                <p class="mt-3 text-sm text-white/60">I'll confirm your pledge by email. Quote this code when you request your project.</p>
               } @else {
-                <h3 #pledgeSuccess tabindex="-1" class="text-2xl font-medium focus:outline-none">Your pledge request is ready to send.</h3>
+                <h3 #pledgeSuccess tabindex="-1" class="text-2xl focus:outline-none">Your pledge request is ready to send.</h3>
                 <p class="mt-3">Your email app should have opened with the details filled in. Send it, and I'll reply with payment options and your discount code. Nothing has been charged.</p>
-                <p class="mt-3 text-sm text-mute">Nothing opened? Email {{ site.email }} with the project name and amount.</p>
+                <p class="mt-3 text-sm text-white/60">Nothing opened? Email {{ site.email }} with the project name and amount.</p>
               }
               <button type="button" class="btn btn-ghost mt-6" (click)="resetPledge()">Back another project</button>
             </div>
@@ -321,11 +348,11 @@
                 <legend class="mb-2 font-medium">1. Choose a project</legend>
                 <div class="space-y-2" role="radiogroup" aria-label="Choose a project">
                   @for (f of funding; track f.id) {
-                    <label class="block cursor-pointer border bg-white p-3 hover:border-iris" [class.border-iris]="projectId() === f.id" [class.border-rule]="projectId() !== f.id">
-                      <input type="radio" name="project" class="mr-2 accent-iris" [checked]="projectId() === f.id" (change)="projectId.set(f.id)" />
-                      <span class="font-medium">{{ f.title }}</span>
-                      <span class="mt-2 block h-2 bg-paper" aria-hidden="true"><span class="block h-2 bg-iris" [style.width.%]="pct(f)"></span></span>
-                      <span class="mt-1 block text-xs text-mute">${{ f.raised }} of ${{ f.goal }} goal, {{ f.backers }} backers</span>
+                    <label class="block cursor-pointer rounded-lg border p-3 transition-colors hover:border-white/30" [class.border-[var(--color-iris)]]="projectId() === f.id" [class.border-white/10]="projectId() !== f.id">
+                    <input type="radio" name="project" class="mr-2 accent-[var(--color-iris)]" [checked]="projectId() === f.id" (change)="projectId.set(f.id)" />
+                    <span class="font-medium">{{ f.title }}</span>
+                    <span class="mt-2 block h-1 overflow-hidden rounded-full bg-white/10" aria-hidden="true"><span class="block h-1 rounded-full" style="background: var(--color-iris)" [style.width.%]="pct(f)"></span></span>
+                    <span class="mt-1 block text-xs text-white/50">${{ f.raised }} of ${{ f.goal }} goal · {{ f.backers }} backers</span>
                     </label>
                   }
                 </div>
@@ -334,72 +361,77 @@
                 <legend class="mb-2 font-medium">2. Choose an amount (USD)</legend>
                 <div class="flex flex-wrap items-center gap-2">
                   @for (p of presets; track p) {
-                    <button type="button" class="btn border border-ink !py-2" [class.bg-ink]="amount() === p" [class.text-white]="amount() === p" (click)="amount.set(p)">${{ p }}</button>
+                    <button type="button" class="btn !py-2 border border-white/20" [class.!bg-[var(--color-iris)]]="amount() === p" [class.!text-black]="amount() === p" (click)="amount.set(p)">${{ p }}</button>
                   }
-                  <input type="number" min="1" class="field !w-28" aria-label="Custom amount in US dollars" [value]="amount()" (input)="setAmount($event)" />
+                  <input type="number" min="1" class="field !w-28 !bg-white/[.04] !border-white/15 !text-white" aria-label="Custom amount in US dollars" [value]="amount()" (input)="setAmount($event)" />
                 </div>
                 <p class="mt-3 text-sm" aria-live="polite" aria-atomic="true">
-                  @if (tier(); as t) { You'll receive <strong class="bg-marker px-1">{{ t.off }}% off</strong> your own project. }
+                  @if (tier(); as t) { You'll receive <strong class="marker text-white">{{ t.off }}% off</strong> your own project. }
                   @else { Pledge ${{ tiers[0].min }} or more to earn a discount. }
                 </p>
               </fieldset>
               <fieldset class="space-y-3">
                 <legend class="mb-2 font-medium">3. Your details</legend>
-                <input class="field" name="pn" placeholder="Your name" aria-label="Your name" required [value]="pledgeName()" (input)="pledgeName.set($any($event.target).value)" />
-                <input class="field" name="pe" type="email" placeholder="Email address" aria-label="Email address" required [value]="pledgeEmail()" (input)="pledgeEmail.set($any($event.target).value)" />
+                <input class="field !bg-white/[.04] !border-white/15 !text-white" name="pn" placeholder="Your name" aria-label="Your name" required [value]="pledgeName()" (input)="pledgeName.set($any($event.target).value)" />
+                <input class="field !bg-white/[.04] !border-white/15 !text-white" name="pe" type="email" placeholder="Email address" aria-label="Email address" required [value]="pledgeEmail()" (input)="pledgeEmail.set($any($event.target).value)" />
               </fieldset>
               <button class="btn btn-primary w-full" [disabled]="pledgeBusy()">{{ pledgeBusy() ? 'Sending…' : (live ? 'Back this project for $' : 'Send pledge request for $') + amount() }}</button>
-              <p class="text-xs text-mute">Nothing is charged on this page. After I confirm your pledge, I'll send payment options (M-Pesa or card) and your discount code.</p>
-              @if (pledgeStatus()) { <p class="text-sm text-red-700" role="alert">{{ pledgeStatus() }}</p> }
+              <p class="text-xs text-white/40">Nothing is charged on this page. After I confirm your pledge, I'll send payment options (M-Pesa or card) and your discount code.</p>
+              @if (pledgeStatus()) { <p class="text-sm text-red-400" role="alert">{{ pledgeStatus() }}</p> }
             </form>
           }
         </div>
       </div>
 
-      <details class="mt-10 border-t border-rule pt-4 text-sm text-mute">
-        <summary class="cursor-pointer font-medium text-ink">Terms</summary>
+      <details class="mt-10 hair-t pt-4 text-sm text-white/60">
+        <summary class="cursor-pointer font-medium text-white">Terms</summary>
         <ul class="mt-3 grid gap-2 sm:grid-cols-2">@for (t of terms; track $index) { <li>{{ t }}</li> }</ul>
       </details>
+
       <app-donate />
     </div>
   </section>
 
-  <!-- Testimonials: all visible, no carousel -->
-  <section id="testimonials" class="mx-auto max-w-6xl px-5 py-24" aria-labelledby="testimonials-heading">
-    <h2 id="testimonials-heading" class="text-4xl font-medium">What clients say</h2>
-    <div class="mt-10 grid gap-10 md:grid-cols-2">
-      @for (t of testimonials; track t.name) {
-        <blockquote class="border-l-4 border-iris pl-6">
-          <p class="font-display text-2xl leading-snug">"{{ t.quote }}"</p>
-          <footer class="mt-4 text-mute"><strong class="text-ink">{{ t.name }}</strong>, {{ t.role }}</footer>
-          @if (t.placeholder) { <p class="mt-2 text-xs text-mute">Sample testimonial. Replace before launch.</p> }
-        </blockquote>
-      }
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="hair-t" aria-labelledby="testimonials-heading">
+    <div class="mx-auto max-w-6xl px-5 py-24">
+      <p class="eyebrow">Testimonials</p>
+      <h2 id="testimonials-heading" class="mt-3 text-4xl">What clients say</h2>
+      <div class="mt-10 grid gap-10 md:grid-cols-2">
+        @for (t of testimonials; track t.name) {
+          <blockquote class="border-l-2 pl-6" style="border-color: var(--color-iris)">
+            <p class="font-display text-2xl leading-snug">"{{ t.quote }}"</p>
+            <footer class="mt-4 text-white/50"><strong class="text-white">{{ t.name }}</strong>, {{ t.role }}</footer>
+            @if (t.placeholder) { <p class="mt-2 text-xs text-white/40">Sample testimonial. Replace before launch.</p> }
+          </blockquote>
+        }
+      </div>
     </div>
   </section>
 
-  <!-- Contact -->
-  <section id="contact" class="bg-ink text-white" aria-labelledby="contact-heading">
+  <!-- CONTACT -->
+  <section id="contact" class="hero-canvas hair-t" aria-labelledby="contact-heading">
     <div class="mx-auto grid max-w-6xl gap-10 px-5 py-24 lg:grid-cols-2">
       <div>
-        <h2 id="contact-heading" class="text-4xl font-medium">Let's build the system your business needs.</h2>
-        <p class="mt-4 max-w-md text-white/70">Tell me the problem in a few lines. I reply within two working days.</p>
+        <p class="eyebrow">Contact</p>
+        <h2 id="contact-heading" class="mt-3 text-4xl">Let's build the system your business needs.</h2>
+        <p class="mt-4 max-w-md text-white/60">Tell me the problem in a few lines. I reply within two working days.</p>
         @if (waLink || booking) {
-          <p class="mt-6 text-white/70">For a quicker reply, reach me directly:</p>
+          <p class="mt-6 text-white/60">For a quicker reply, reach me directly:</p>
           <div class="mt-3 flex flex-wrap gap-3">
-            @if (waLink) { <a [href]="waLink" target="_blank" rel="noopener" class="btn border border-white text-white hover:bg-white hover:text-ink">Message on WhatsApp</a> }
-            @if (booking) { <a [href]="booking" target="_blank" rel="noopener" class="btn border border-white text-white hover:bg-white hover:text-ink">Book a 20-minute call</a> }
+            @if (waLink) { <a [href]="waLink" target="_blank" rel="noopener" class="btn btn-ghost">Message on WhatsApp</a> }
+            @if (booking) { <a [href]="booking" target="_blank" rel="noopener" class="btn btn-ghost">Book a 20-minute call</a> }
           </div>
         }
-        <p class="mt-6 text-white/60">{{ site.location }}</p>
+        <p class="mt-6 text-white/40">{{ site.location }}</p>
       </div>
       @if (sent()) {
-        <p #contactSuccess tabindex="-1" class="bg-white p-6 text-ink focus:outline-none" role="status">
+        <p #contactSuccess tabindex="-1" class="rounded-xl bg-white p-6 text-ink focus:outline-none" role="status">
           @if (sentViaEmail()) { Thank you, {{ c().name }}. Your email app should have opened with your message. Send it to complete your enquiry, or write to {{ site.email }}. }
           @else { Thank you, {{ c().name }}. I'll be in touch within two working days. }
         </p>
       } @else {
-        <form #cf (submit)="$event.preventDefault(); contact(cf)" novalidate class="space-y-3 bg-white p-6 text-ink">
+        <form #cf (submit)="$event.preventDefault(); contact(cf)" novalidate class="space-y-3 rounded-xl bg-white p-6 text-ink">
           <input class="field" name="n" placeholder="Your name" aria-label="Your name" required (input)="upd('name', $any($event.target).value)" />
           <input class="field" name="e" type="email" placeholder="Email address" aria-label="Email address" required (input)="upd('email', $any($event.target).value)" />
           <textarea class="field" name="d" rows="4" placeholder="What does your business need?" aria-label="What does your business need" required (input)="upd('need', $any($event.target).value)"></textarea>
@@ -412,15 +444,15 @@
             </select>
           </div>
           <button class="btn btn-primary w-full" [disabled]="contactBusy()">{{ contactBusy() ? 'Sending…' : 'Send enquiry' }}</button>
-          @if (contactStatus()) { <p class="text-sm text-red-700" role="alert">{{ contactStatus() }}</p> }
+          @if (contactStatus()) { <p class="text-sm text-red-600" role="alert">{{ contactStatus() }}</p> }
         </form>
       }
     </div>
   </section>
 </main>
 
-<footer class="bg-ink pb-10 text-sm text-white/60">
-  <div class="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 border-t border-white/10 px-5 pt-6">
+<footer class="hair-t">
+  <div class="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 px-5 py-6 text-sm text-white/50">
     <p>© {{ year }} {{ site.name }}</p>
     <p class="flex flex-wrap gap-4">
       <a routerLink="/admin" class="underline hover:text-white">Admin</a>
@@ -428,3 +460,19 @@
     </p>
   </div>
 </footer>
+
+<!-- Playable tokens (Marco-style flourish) -->
+<button type="button"
+        class="fixed right-4 bottom-4 z-40 rounded-full border border-white/20 bg-[#0e1013] px-4 py-2 text-sm text-white/80 shadow-lg hover:border-white/40"
+        [attr.aria-expanded]="tokensOpen()" (click)="tokensOpen.set(!tokensOpen())">
+  {{ tokensOpen() ? 'Close tokens' : 'Play with the design tokens' }}
+</button>
+
+@if (tokensOpen()) {
+  <aside class="tokens-panel" aria-label="Design tokens">
+    <p class="text-xs uppercase tracking-widest text-white/40">Design tokens</p>
+    <label class="mt-2">Accent <input type="color" [value]="accent()" (input)="setAccent($any($event.target).value)" /></label>
+    <label class="mt-2">Radius <input type="range" min="0" max="18" [value]="radius()" (input)="setRadius(+$any($event.target).value)" /> <span class="font-mono text-xs">{{ radius() }}px</span></label>
+    <p class="mt-2 text-[11px] text-white/40">Recolours accent and corner radius live. Resets when you close this panel.</p>
+  </aside>
+}
