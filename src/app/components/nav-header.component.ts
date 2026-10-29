@@ -18,7 +18,9 @@ import { ContentService } from '../services/content.service';
             class="flex flex-col items-start select-none group text-left"
             [attr.aria-label]="site().name + ' - ' + site().role"
           >
-            <span class="text-xs sm:text-sm md:text-base font-bold tracking-tight uppercase leading-tight">
+            <span
+              class="text-xs sm:text-sm md:text-base font-bold tracking-tight uppercase leading-tight"
+            >
               {{ site().name }}
             </span>
             <p class="text-[10px] sm:text-xs text-neutral-400 font-mono tracking-wider">
@@ -28,11 +30,10 @@ import { ContentService } from '../services/content.service';
         </div>
 
         <!-- Navigation Links -->
-        <nav
-          aria-label="Main navigation"
-          class="pointer-events-auto select-none"
-        >
-          <ul class="flex items-center gap-4 sm:gap-8 font-mono text-[11px] sm:text-xs uppercase tracking-wider">
+        <nav aria-label="Main navigation" class="pointer-events-auto select-none">
+          <ul
+            class="flex items-center gap-4 sm:gap-8 font-mono text-[11px] sm:text-xs uppercase tracking-wider"
+          >
             <li>
               <a
                 routerLink="/"
@@ -59,6 +60,15 @@ import { ContentService } from '../services/content.service';
                 class="inline-block py-1 text-neutral-300 hover:text-white transition-colors"
               >
                 CONTACTS
+              </a>
+            </li>
+            <li>
+              <a
+                routerLink="/donate"
+                routerLinkActive="font-bold underline decoration-2 underline-offset-4"
+                class="inline-block py-1 text-neutral-300 hover:text-white transition-colors"
+              >
+                SUPPORT
               </a>
             </li>
           </ul>

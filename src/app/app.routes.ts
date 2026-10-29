@@ -15,11 +15,17 @@ export const routes: Routes = [
   },
   {
     path: 'projects/:slug',
-    loadComponent: () => import('./projects/project-detail.component').then((m) => m.ProjectDetailComponent),
+    loadComponent: () =>
+      import('./projects/project-detail.component').then((m) => m.ProjectDetailComponent),
   },
   {
     path: 'hire',
     loadComponent: () => import('./hire/hire').then((m) => m.Hire),
+  },
+  {
+    path: 'donate',
+    loadComponent: () =>
+      import('./donate/donate-page.component').then((m) => m.DonatePageComponent),
   },
   {
     path: 'admin',

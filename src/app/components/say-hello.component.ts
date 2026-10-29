@@ -20,7 +20,9 @@ import { BackgroundGridComponent } from './background-grid.component';
     >
       <app-background-grid [theme]="theme()" />
 
-      <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8 py-24 sm:py-32 md:py-40">
+      <div
+        class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8 py-24 sm:py-32 md:py-40"
+      >
         <!-- Giant Display Headline -->
         <div class="flex flex-col">
           <h2
@@ -39,7 +41,8 @@ import { BackgroundGridComponent } from './background-grid.component';
               class="text-base sm:text-lg md:text-xl font-normal leading-relaxed"
               [class]="theme() === 'dark' ? 'text-neutral-400' : 'text-neutral-600'"
             >
-              If you have a project in mind, feel free to reach out — I'd be glad to help bring your vision to life.
+              If you have a project in mind, feel free to reach out — I'd be glad to help bring your
+              vision to life.
             </p>
           </div>
 
@@ -62,8 +65,8 @@ import { BackgroundGridComponent } from './background-grid.component';
                     copied()
                       ? 'border-[#d4ff00] text-[#d4ff00] bg-[#d4ff00]/10'
                       : theme() === 'dark'
-                      ? 'border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500'
-                      : 'border-neutral-300 text-neutral-600 hover:text-black hover:border-neutral-400'
+                        ? 'border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500'
+                        : 'border-neutral-300 text-neutral-600 hover:text-black hover:border-neutral-400'
                   "
                   [attr.aria-label]="copied() ? 'Email copied' : 'Copy email address'"
                 >
@@ -73,7 +76,9 @@ import { BackgroundGridComponent } from './background-grid.component';
             </div>
 
             <!-- Social Links & Navigation -->
-            <ul class="flex flex-wrap items-center gap-6 font-mono text-xs sm:text-sm uppercase tracking-wider">
+            <ul
+              class="flex flex-wrap items-center gap-6 font-mono text-xs sm:text-sm uppercase tracking-wider"
+            >
               @if (site().linkedin) {
                 <li>
                   <a
@@ -118,6 +123,14 @@ import { BackgroundGridComponent } from './background-grid.component';
                   Hire me ↗
                 </a>
               </li>
+              <li>
+                <a
+                  routerLink="/donate"
+                  class="hover:underline decoration-1 underline-offset-4 text-[#d4ff00] font-bold"
+                >
+                  Support ↗
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -134,9 +147,7 @@ import { BackgroundGridComponent } from './background-grid.component';
           <div class="tracking-widest uppercase">
             {{ site().coordinates }}
           </div>
-          <div>
-            © {{ year }} {{ site().name }} — All Rights Reserved.
-          </div>
+          <div>© {{ year }} {{ site().name }} — All Rights Reserved.</div>
         </div>
       </div>
     </section>

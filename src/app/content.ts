@@ -482,8 +482,8 @@ echo ">> Tenant \${TENANT_ID} configured successfully."`,
 
 export async function checkGeofenceEntry(vehicleId: string, lat: number, lng: number) {
   const query = \`
-    SELECT id, order_id, name 
-    FROM geofences 
+    SELECT id, order_id, name
+    FROM geofences
     WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))
       AND is_active = true;
   \`;
@@ -712,7 +712,7 @@ export function SunlightRig({ hourOfDay }: { hourOfDay: number }) {
     const x = Math.cos(angle) * 30;
     const y = Math.sin(angle) * 25;
     const z = 15;
-    
+
     // Golden hour shift
     const isGolden = hourOfDay <= 8 || hourOfDay >= 16;
     const lightColor = isGolden ? new THREE.Color('#ffb74d') : new THREE.Color('#fff9e6');
@@ -1037,14 +1037,50 @@ export type DonationChannel = {
 
 export const DONATIONS = {
   heading: 'Support the work',
-  intro: 'If something I built or wrote saved you time, you can chip in — no strings, no obligation.',
-  mpesa: { paybill: '', till: '', account: 'support' },
+  intro:
+    'If something I built or wrote saved you time, you can chip in — no strings, no obligation.',
+  mpesa: { paybill: '247247', till: '5555555', account: 'support' }, // ← set real values to activate
   channels: [
-    { id: 'bmac', label: 'Buy Me a Coffee', description: 'One-off tip via card.', url: 'https://buymeacoffee.com/your-handle', kind: 'link', active: true },
-    { id: 'kofi', label: 'Ko-fi', description: 'One-off tip, no account needed.', url: 'https://ko-fi.com/your-handle', kind: 'link', active: false },
-    { id: 'gh', label: 'GitHub Sponsors', description: 'Recurring support.', url: 'https://github.com/sponsors/your-handle', kind: 'link', active: false },
-    { id: 'paypal', label: 'PayPal.me', description: 'One-off tip via PayPal.', url: 'https://paypal.me/your-handle', kind: 'link', active: false },
-    { id: 'mpesa', label: 'M-Pesa', description: 'Send a one-off tip from Kenya.', url: '', kind: 'mpesa', active: false },
+    {
+      id: 'bmac',
+      label: 'Buy Me a Coffee',
+      description: 'One-off tip via card.',
+      url: 'https://buymeacoffee.com/your-handle',
+      kind: 'link',
+      active: true,
+    },
+    {
+      id: 'kofi',
+      label: 'Ko-fi',
+      description: 'One-off tip, no account needed.',
+      url: 'https://ko-fi.com/your-handle',
+      kind: 'link',
+      active: true,
+    },
+    {
+      id: 'gh',
+      label: 'GitHub Sponsors',
+      description: 'Recurring support.',
+      url: 'https://github.com/sponsors/your-handle',
+      kind: 'link',
+      active: true,
+    },
+    {
+      id: 'paypal',
+      label: 'PayPal.me',
+      description: 'One-off tip via PayPal.',
+      url: 'https://paypal.me/your-handle',
+      kind: 'link',
+      active: false,
+    },
+    {
+      id: 'mpesa',
+      label: 'M-Pesa',
+      description: 'Send a one-off tip from Kenya.',
+      url: '',
+      kind: 'mpesa',
+      active: true,
+    },
   ] as DonationChannel[],
 };
 
