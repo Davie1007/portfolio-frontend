@@ -9,17 +9,37 @@
 <main id="main">
 
   <!-- HERO -->
+  <!-- HERO -->
   <section class="hero" aria-labelledby="hero-name">
-    <h1 id="hero-name" class="hero-name">
-      <span class="line">DAVID</span>
-      <span class="line">KARANJA</span>
-    </h1>
-    <p class="hero-role">
-      Full-stack engineer building business systems, ERP platforms and 3D web apps.
-    </p>
-    <a href="#projects" class="hero-scroll">
-      Scroll <span aria-hidden="true">↓</span>
-    </a>
+    <div class="hero-grid">
+      <div class="hero-text">
+        <h1 id="hero-name" class="hero-name">
+          <span class="line">DAVID</span>
+          <span class="line">KARANJA</span>
+        </h1>
+        <p class="hero-role">
+          Full-stack engineer building business systems, ERP platforms and 3D web apps.
+        </p>
+        <a href="#projects" class="hero-scroll">
+          Scroll <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <figure class="hero-portrait">
+        <img
+          [src]="site.heroShot"
+          [alt]="site.heroShotAlt"
+          width="720"
+          height="900"
+          fetchpriority="high"
+          decoding="async"
+        />
+        <figcaption class="hero-portrait-caption">
+          <span class="hero-portrait-dot" aria-hidden="true"></span>
+          Thika, Kenya · {{ year }}
+        </figcaption>
+      </figure>
+    </div>
   </section>
 
   <!-- PROJECTS -->

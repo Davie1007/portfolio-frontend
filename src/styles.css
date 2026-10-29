@@ -518,3 +518,66 @@ em { font-synthesis: none; }
 @media (min-width: 900px) {
   .hire { padding: 6vh var(--gutter) 12vh; }
 }
+
+/* ─── Hero grid + portrait ─────────────────────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+.hero-text { min-width: 0; }
+
+.hero-portrait {
+  margin: 0;
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  justify-self: start;
+}
+.hero-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  border: 1px solid var(--hairline);
+  background: var(--color-rule);
+}
+.hero-portrait-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+}
+.hero-portrait-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-iris);
+  flex: none;
+}
+
+/* Larger screens: side-by-side, portrait anchored right */
+@media (min-width: 900px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6vw;
+    align-items: end;
+  }
+  .hero-portrait {
+    max-width: 26rem;
+    justify-self: end;
+  }
+}
+
+/* Very small screens: shrink the portrait so the name stays king */
+@media (max-width: 360px) {
+  .hero-portrait { max-width: 16rem; }
+}
