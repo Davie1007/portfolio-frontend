@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
@@ -6,6 +6,7 @@ import { NavHeaderComponent } from '../components/nav-header.component';
 import { BackgroundGridComponent } from '../components/background-grid.component';
 import { SayHelloComponent } from '../components/say-hello.component';
 import { ContentService } from '../services/content.service';
+import { SeoService } from '../services/seo.service';
 import { ProjectCaseStudy, TreeNode } from '../content';
 
 @Component({
@@ -408,6 +409,7 @@ import { ProjectCaseStudy, TreeNode } from '../content';
 export class ProjectDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly content = inject(ContentService);
+  private readonly seo = inject(SeoService);
 
   readonly slug = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('slug') ?? '')),
@@ -418,6 +420,41 @@ export class ProjectDetailComponent {
     const s = this.slug();
     return s ? this.content.getCaseStudy(s) : undefined;
   });
+
+  constructor() {
+    effect(() => {
+      const p = this.project();
+      if (p) {
+        this.seo.updateMetadata({
+          title: `${p.title} | David Karanja — Creative Developer Case Study`,
+          description: `Case study on ${p.title} (${p.year}): ${p.summary}`,
+          canonicalUrl: `https://karanjadavid.com/projects/${p.slug}`,
+          keywords: `${p.title}, ${p.tags.join(', ')}, David Karanja, Case Study, WebGL, Creative Development, Systems Engineering`,
+          image: `https://karanjadavid.com${p.image}`,
+          type: 'article',
+          schema: {
+            '@context': 'https://schema.org',
+            '@type': 'TechArticle',
+            headline: p.title,
+            description: p.summary,
+            image: `https://karanjadavid.com${p.image}`,
+            author: {
+              '@type': 'Person',
+              name: 'David Karanja',
+              url: 'https://karanjadavid.com',
+            },
+            publisher: {
+              '@type': 'Person',
+              name: 'David Karanja',
+            },
+            datePublished: `${p.year}-01-01`,
+            about: p.tags.map((tag) => ({ '@type': 'Thing', name: tag })),
+            url: `https://karanjadavid.com/projects/${p.slug}`,
+          },
+        });
+      }
+    });
+  }
 
   readonly nextProject = computed(() => {
     const s = this.slug();

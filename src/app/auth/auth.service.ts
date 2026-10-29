@@ -17,7 +17,7 @@ export class AuthService {
       });
   }
 
-  async login(email: string, password: string): Promise<boolean> {
+  async login(email: string, password: string): Promise<{ ok: boolean; message?: string }> {
     const url = `${environment.apiBase}/auth/login`;
     try {
       await new Promise<void>((resolve, reject) => {
@@ -33,12 +33,19 @@ export class AuthService {
           });
       });
       this.signedIn.set(true);
-      return true;
+      return { ok: true };
     } catch (err: any) {
-      // Log the server's actual reason so you can see it in DevTools → Console.
       console.error('[login failed]', err.status, err.error);
       this.signedIn.set(false);
-      return false;
+      let message = 'Incorrect email or password.';
+      if (err.status === 0) {
+        message = 'Cannot connect to API server at http://localhost:8000. Is php artisan serve running?';
+      } else if (err.status === 500) {
+        message = 'Server error (500). Please check backend logs.';
+      } else if (err?.error?.message) {
+        message = err.error.message;
+      }
+      return { ok: false, message };
     }
   }
 

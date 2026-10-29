@@ -3,6 +3,7 @@ import { NavHeaderComponent } from '../components/nav-header.component';
 import { BackgroundGridComponent } from '../components/background-grid.component';
 import { SayHelloComponent } from '../components/say-hello.component';
 import { ContentService } from '../services/content.service';
+import { SeoService } from '../services/seo.service';
 
 @Component({
   selector: 'app-about',
@@ -105,6 +106,34 @@ import { ContentService } from '../services/content.service';
 })
 export class AboutComponent {
   private readonly content = inject(ContentService);
+  private readonly seo = inject(SeoService);
+
   readonly about = this.content.about;
   readonly techStack = this.content.techStack;
+
+  constructor() {
+    this.seo.updateMetadata({
+      title: 'About | David Karanja — Creative Developer & Systems Engineer',
+      description:
+        'David Karanja is a creative developer and software engineer bridging mathematics, robust business systems, ERP architectures, and interactive 3D web experiences.',
+      canonicalUrl: 'https://karanjadavid.com/about',
+      type: 'profile',
+      keywords:
+        'David Karanja, About, Creative Developer, Bio, Philosophy, Tech Stack, Systems Engineer, Kenya',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'About David Karanja',
+        url: 'https://karanjadavid.com/about',
+        description:
+          'David Karanja is a creative developer and software engineer bridging mathematics, robust business systems, ERP architectures, and interactive 3D web experiences.',
+        mainEntity: {
+          '@type': 'Person',
+          name: 'David Karanja',
+          jobTitle: 'Creative Developer & Systems Engineer',
+          url: 'https://karanjadavid.com',
+        },
+      },
+    });
+  }
 }

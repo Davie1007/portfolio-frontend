@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { NavHeaderComponent } from '../components/nav-header.component';
 import { BackgroundGridComponent } from '../components/background-grid.component';
 import { ContentService } from '../services/content.service';
+import { SeoService } from '../services/seo.service';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -209,7 +210,34 @@ import { environment } from '../../environments/environment';
 export class ContactsComponent {
   private readonly http = inject(HttpClient);
   private readonly content = inject(ContentService);
+  private readonly seo = inject(SeoService);
   readonly site = this.content.site;
+
+  constructor() {
+    this.seo.updateMetadata({
+      title: 'Contact | David Karanja — Creative Developer & Systems Engineer',
+      description:
+        'Available for creative development, interactive 3D web applications, ERP integrations, and high-performance engineering consultancy. Contact David Karanja.',
+      canonicalUrl: 'https://karanjadavid.com/contacts',
+      keywords:
+        'David Karanja, Contact, Hire Creative Developer, Full-Stack Engineer, Thika Kenya, WebGL, Laravel, Freelance Software Engineer',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: 'Contact David Karanja',
+        url: 'https://karanjadavid.com/contacts',
+        description:
+          'Contact David Karanja for creative development, interactive 3D web configurators, and enterprise ERP deployments.',
+        mainEntity: {
+          '@type': 'Person',
+          name: 'David Karanja',
+          email: 'hello@karanjadavid.com',
+          jobTitle: 'Creative Developer & Systems Engineer',
+          url: 'https://karanjadavid.com',
+        },
+      },
+    });
+  }
 
   readonly form = {
     name: '',

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://karanjadavid.com/</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/about</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/contacts</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/hire</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/creator-studio</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/Custom_T-Shirt_Online.webp</image:loc>
+      <image:title>T-Shirt Creator Studio 3D Customizer</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/multi-tenant-erp</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/erp.jpeg</image:loc>
+      <image:title>Multi-Tenant Dolibarr ERP Platform</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/logistics-tracker</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/logistics.jpg</image:loc>
+      <image:title>B2B Logistics and Real-Time Delivery Tracker</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/mpesa-reconciliation</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/mpesa.jpeg</image:loc>
+      <image:title>M-Pesa Automated Financial Reconciliation Engine</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/real-estate-3d</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/real-estate.jpg</image:loc>
+      <image:title>3D Real Estate Virtual Tour Platform</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://karanjadavid.com/projects/saas-gatekeeper</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://karanjadavid.com/assets/saas.jpeg</image:loc>
+      <image:title>SaaS Billing and Subscription Gatekeeper</image:title>
+    </image:image>
+  </url>
+</urlset>
