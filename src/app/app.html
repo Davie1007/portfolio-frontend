@@ -1,160 +1,90 @@
-<a href="#main" class="skip-link">Skip to content</a>
+<app-nav-header />
 
-<nav class="site-nav" aria-label="Main">
-  <a href="#projects">Projects</a>
-  <a href="#about">About</a>
-  <a href="#contact">Contacts</a>
-</nav>
+<main class="relative min-h-screen bg-[#0a0a0a] text-white overflow-hidden pt-32 sm:pt-40 md:pt-48">
+  <app-background-grid theme="dark" />
 
-<main id="main">
-
-  <!-- HERO -->
-  <!-- HERO -->
-  <section class="hero" aria-labelledby="hero-name">
-    <div class="hero-grid">
-      <div class="hero-text">
-        <h1 id="hero-name" class="hero-name">
-          <span class="line">DAVID</span>
-          <span class="line">KARANJA</span>
-        </h1>
-        <p class="hero-role">
-          Full-stack engineer building business systems, ERP platforms and 3D web apps.
-        </p>
-        <a href="#projects" class="hero-scroll">
-          Scroll <span aria-hidden="true">↓</span>
-        </a>
-      </div>
-
-      <figure class="hero-portrait">
-        <img
-          [src]="site.heroShot"
-          [alt]="site.heroShotAlt"
-          width="720"
-          height="900"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <figcaption class="hero-portrait-caption">
-          <span class="hero-portrait-dot" aria-hidden="true"></span>
-          Thika, Kenya · {{ year }}
-        </figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projects" class="projects" aria-labelledby="projects-heading">
-    <header class="projects-label">
-      <p class="eyebrow">
-        Selected works — {{ work.length.toString().padStart(2, '0') }}
+  <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8 pb-32">
+    <!-- Big Headline: Projects'26 -->
+    <header class="flex flex-col">
+      <h1 class="text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] font-bold tracking-tighter leading-none select-none">
+        Projects<span class="text-[#d4ff00]">{{ yearShort }}</span>
+      </h1>
+      <p class="mt-6 text-lg sm:text-xl md:text-2xl font-light text-neutral-400 max-w-2xl leading-relaxed">
+        High-performance web applications, enterprise ERP deployments, and interactive 3D configurators.
       </p>
-      <h2 id="projects-heading" class="sr-only">Selected works</h2>
     </header>
 
-    @for (w of work; track w.title; let first = $first) {
-      <article class="project reveal">
-        <h3 class="project-title">
-          @if (w.href) {
-            <a [href]="w.href" target="_blank" rel="noopener">{{ w.title }}</a>
-          } @else {
-            {{ w.title }}
-          }
-        </h3>
-
-        @if (w.image) {
-          <div class="project-media">
-            <img
-              [src]="w.image"
-              [alt]="w.imageAlt ?? w.title"
-              [attr.loading]="first ? 'eager' : 'lazy'"
-              [attr.fetchpriority]="first ? 'high' : 'auto'"
-              decoding="async"
-              width="1600"
-              height="900"
-              sizes="(min-width: 900px) 90vw, 100vw"
-            />
-          </div>
-        }
-
-        <p class="project-desc">{{ w.text }}</p>
-
-        @if (w.stack) {
-          <ul class="project-stack" aria-label="Technologies">
-            @for (s of stackList(w.stack); track s) {
-              <li>{{ s }}</li>
-            }
-          </ul>
-        }
-      </article>
-    }
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about" class="about" aria-labelledby="about-heading">
-    <h2 id="about-heading" class="reveal">About</h2>
-
-    <div class="reveal">
-      <div class="about-body">
-        @for (p of about.bio; track $index) {
-          <p>{{ p }}</p>
-        }
+    <!-- SELECTED WORKS Section -->
+    <section class="mt-20 sm:mt-28" aria-labelledby="selected-works-heading">
+      <div class="flex items-center justify-between pb-6 border-b border-neutral-900">
+        <h2 id="selected-works-heading" class="font-mono text-xs uppercase tracking-widest text-neutral-500">
+          SELECTED WORKS
+        </h2>
+        <span class="font-mono text-[11px] text-neutral-600">
+          01 — 0{{ caseStudies().length }}
+        </span>
       </div>
 
-      <dl class="about-facts">
-        @for (f of about.facts; track f.label) {
-          <div>
-            <dt>{{ f.label }}</dt>
-            <dd>{{ f.value }}</dd>
-          </div>
+      <!-- Project Cards List -->
+      <div class="mt-12 space-y-20 sm:space-y-28">
+        @for (project of caseStudies(); track project.slug; let idx = $index) {
+          <article class="group flex flex-col gap-6">
+            <!-- Media Preview Container -->
+            <a
+              [routerLink]="['/projects', project.slug]"
+              class="relative aspect-16/10 sm:aspect-16/9 xl:aspect-21/9 w-full overflow-hidden rounded-sm border border-neutral-800 bg-neutral-950 shadow-2xl block cursor-pointer transition-all duration-500 group-hover:border-neutral-600"
+              [attr.aria-label]="project.title + ' case study'"
+            >
+              <img
+                [src]="project.image"
+                [alt]="project.imageAlt"
+                class="size-full object-contain p-4 sm:p-8 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                [attr.loading]="idx === 0 ? 'eager' : 'lazy'"
+                decoding="async"
+              />
+
+              <!-- Overlay gradient for hover feel -->
+              <div
+                class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-6 sm:p-8"
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-[#d4ff00] flex items-center gap-1.5">
+                  <span>Explore Case Study</span>
+                  <span>→</span>
+                </span>
+              </div>
+            </a>
+
+            <!-- Project Details Header & Tags -->
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+              <div class="flex flex-col gap-1">
+                <span class="font-mono text-xs text-neutral-500">0{{ idx + 1 }} · {{ project.year }}</span>
+                <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white group-hover:text-[#d4ff00] transition-colors">
+                  <a [routerLink]="['/projects', project.slug]">
+                    {{ project.title }}
+                  </a>
+                </h3>
+              </div>
+
+              <!-- Tech tags -->
+              <div class="flex flex-wrap items-center gap-2">
+                @for (tag of project.tags; track tag) {
+                  <span class="font-mono text-[11px] sm:text-xs px-2.5 py-1 rounded-sm border border-neutral-800 text-neutral-400 bg-neutral-950/40">
+                    {{ tag }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Brief Description -->
+            <p class="text-sm sm:text-base text-neutral-400 max-w-3xl leading-relaxed font-normal">
+              {{ project.summary }}
+            </p>
+          </article>
         }
-      </dl>
+      </div>
+    </section>
+  </div>
 
-      <ul class="about-tags" aria-label="Tools and skills">
-        @for (c of capabilities; track c.title) {
-          <li [attr.title]="c.text">{{ c.title }}</li>
-        }
-      </ul>
-    </div>
-  </section>
-
-  <!-- APPROACH -->
-  <section aria-labelledby="approach-heading">
-    <div class="approach">
-      <h2 id="approach-heading" class="approach-heading reveal">How I work</h2>
-      <ol class="approach-list">
-        @for (i of ideas; track i.title; let n = $index) {
-          <li class="reveal">
-            <span class="approach-num">{{ (n + 1).toString().padStart(2, '0') }}</span>
-            <h3>{{ i.title }}</h3>
-            <p>{{ i.text }}</p>
-          </li>
-        }
-      </ol>
-    </div>
-  </section>
-
-  <!-- SAY HELLO -->
-  <footer id="contact" class="say-hello" aria-labelledby="hello-heading">
-    <h2 id="hello-heading" class="reveal">
-      Say<br />
-      <em>Hello</em><span class="dot">.</span>
-    </h2>
-
-    <p class="hello-pitch reveal">
-      If you have a project in mind, feel free to reach out — I'd be glad to
-      help bring your vision to life.
-    </p>
-
-    <a class="hello-email reveal" [href]="'mailto:' + site.email">{{ site.email }}</a>
-
-    <ul class="hello-links reveal">
-      @for (l of about.links; track l.href) {
-        <li><a [href]="l.href" target="_blank" rel="noopener me">{{ l.label }} ↗</a></li>
-      }
-      <li><a routerLink="/hire">Hire me ↗</a></li>
-    </ul>
-
-    <p class="hello-legal">© {{ year }} {{ site.name }}</p>
-  </footer>
-
+  <!-- Reusable Say Hello Footer -->
+  <app-say-hello theme="dark" />
 </main>

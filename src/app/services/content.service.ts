@@ -2,15 +2,18 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   ABOUT,
+  CASE_STUDIES,
   DONATIONS,
   FUNDING,
   IDEAS,
   NAV,
   PRESETS,
   PROMISES,
+  ProjectCaseStudy,
   SERVICES,
   SITE,
   STEPS,
+  TECH_STACK,
   TERMS,
   TESTIMONIALS,
   TIERS,
@@ -32,6 +35,7 @@ export interface SiteSnapshot {
   funding: FundingCampaign[];
   testimonials: Testimonial[];
   work: WorkItem[];
+  caseStudies: ProjectCaseStudy[];
   services: ServiceItem[];
   tiers: Tier[];
   presets: number[];
@@ -40,7 +44,7 @@ export interface SiteSnapshot {
   updatedAt: string;
 }
 
-const CACHE_KEY = 'dk-site-content-v2';
+const CACHE_KEY = 'dk-site-content-v3';
 
 function seed(): SiteSnapshot {
   return {
@@ -48,6 +52,7 @@ function seed(): SiteSnapshot {
     funding: FUNDING.map((f) => ({ ...f })),
     testimonials: TESTIMONIALS.map((t) => ({ ...t })),
     work: WORK.map((w) => ({ ...w })),
+    caseStudies: CASE_STUDIES.map((c) => ({ ...c })),
     services: SERVICES.map((s) => ({ ...s })),
     tiers: TIERS.map((t) => ({ ...t })),
     presets: [...PRESETS],
@@ -67,6 +72,7 @@ export class ContentService {
   readonly funding = computed(() => this._state().funding);
   readonly testimonials = computed(() => this._state().testimonials);
   readonly work = computed(() => this._state().work);
+  readonly caseStudies = computed(() => this._state().caseStudies ?? CASE_STUDIES);
   readonly services = computed(() => this._state().services);
   readonly tiers = computed(() => this._state().tiers);
   readonly presets = computed(() => this._state().presets);
@@ -75,6 +81,7 @@ export class ContentService {
   readonly defaultFundingId = computed(() => this._state().funding[0]?.id ?? FUNDING[0].id);
 
   readonly nav = NAV;
+  readonly techStack = TECH_STACK;
   readonly promises = PROMISES;
   readonly ideas = IDEAS;
   readonly steps = STEPS;
@@ -82,7 +89,7 @@ export class ContentService {
   readonly about = ABOUT;
 
   constructor() {
-    // 1. Persist every change to the local cache (so reload is instant).
+    // 1. Persist state to local cache
     effect(() => {
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(this._state()));
@@ -91,11 +98,32 @@ export class ContentService {
       }
     });
 
-    // 2. Pull fresh content from the server once on boot.
+    // 2. Fetch fresh content from server
     this.refresh();
   }
 
-  /** Load from server and overwrite local state. */
+  getCaseStudy(slug: string): ProjectCaseStudy | undefined {
+    return this.caseStudies().find((c) => c.slug === slug);
+  }
+
+  getNextCaseStudy(slug: string): ProjectCaseStudy {
+    const list = this.caseStudies();
+    const idx = list.findIndex((c) => c.slug === slug);
+    if (idx === -1 || idx === list.length - 1) {
+      return list[0];
+    }
+    return list[idx + 1];
+  }
+
+  getPreviousCaseStudy(slug: string): ProjectCaseStudy {
+    const list = this.caseStudies();
+    const idx = list.findIndex((c) => c.slug === slug);
+    if (idx <= 0) {
+      return list[list.length - 1];
+    }
+    return list[idx - 1];
+  }
+
   refresh(): Promise<void> {
     return new Promise((resolve) => {
       this.http
@@ -105,12 +133,11 @@ export class ContentService {
             this._state.set({ ...seed(), ...payload });
             resolve();
           },
-          error: () => resolve(), // offline: keep cache
+          error: () => resolve(),
         });
     });
   }
 
-  /** Push current state to the server (admin only). */
   async push(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       this.http
@@ -130,7 +157,6 @@ export class ContentService {
     }
   }
 
-  // ---- Mutations (unchanged public API) ----
   patchSite(patch: Partial<SiteConfig>) {
     this._state.update((s) => ({
       ...s,
@@ -159,6 +185,14 @@ export class ContentService {
     this._state.update((s) => ({
       ...s,
       work: s.work.map((w, i) => (i === idx ? { ...w, ...patch } : w)),
+      updatedAt: new Date().toISOString(),
+    }));
+  }
+
+  patchCaseStudy(slug: string, patch: Partial<ProjectCaseStudy>) {
+    this._state.update((s) => ({
+      ...s,
+      caseStudies: s.caseStudies.map((c) => (c.slug === slug ? { ...c, ...patch } : c)),
       updatedAt: new Date().toISOString(),
     }));
   }
